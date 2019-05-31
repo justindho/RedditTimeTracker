@@ -3,21 +3,27 @@
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
-        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no"> -->        
         <meta name="description" content="Keep track of your time spent on Reddit.">
         <meta name="author" content="Justin Ho">
 
         <!-- Custom CSS -->
         <link rel="stylesheet" href="../css/popup.css">
     </head>
-    <body>        
+    <body>
         <div id="popup">
-            <p>You've spent <strong>X</strong> minutes on Reddit today!</p>
-            <br>
-            This Week<br>
-            This Month<br>
-            This Year<br>
-            All Time<br>
+            <p>You've spent <strong id="todayMin"></strong> minutes on Reddit today!</p>            
+            <div style="clear: both;">
+                <p style="float: left;">This week</p><p style="float: right;"><span id="weekMin"></span> minutes</p>
+            </div>
+            <div style="clear: both;">
+                <p style="float: left;">This month</p><p style="float: right;"><span id="monthMin"></span> minutes</p>
+            </div>
+            <div style="clear: both;">
+                <p style="float: left;">This year</p><p style="float: right;"><span id="yearMin"></span> minutes</p>
+            </div>
+            <div style="clear: both;">
+                <p style="float: left;">All Time</p><p style="float: right;"><span id="alltimeMin"></span> minutes</p>
+            </div>
         </div>
     </body>
 </html>
