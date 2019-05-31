@@ -13,7 +13,8 @@
     },
     "browser_action": {
         "default_title": "RedditTimeTracker",
-        "default_icon": "img/icon.png"
+        "default_icon": "img/icon.png",
+        "default_popup": "templates/popup.html"
     },
     "content_scripts": [
         {
@@ -39,9 +40,10 @@
     "options_ui": {
         "page": "templates/options.html",
         "chrome_style": true
-    },
+    },    
     "permissions": [
         "contextMenus",
+        "declarativeContent",
         "https://www.reddit.com/",
         "https://old.reddit.com/",        
         "storage"
