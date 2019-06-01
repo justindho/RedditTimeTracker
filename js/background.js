@@ -1,29 +1,45 @@
 console.log('Background.js started.');
 
 chrome.runtime.onInstalled.addListener( () => {    
-    // Create and store time variables in storage.
+    // Create time variables in storage.
     chrome.storage.sync.set({'todayMin': 0, 'weekMin': 0, 'monthMin': 0, 'yearMin': 0, 'alltimeMin': 0}, () => {
         console.log('Time variables have been created and stored.');
     });
 
 });
 
+// THIS IS HERE FOR TESTING & DEBUGGING PURPOSES ONLY.
 chrome.storage.sync.get(['todayMin', 'weekMin'], (result) => {
     console.log('todayMin = ' + result.todayMin);
     console.log('weekMin = ' + result.weekMin);
 });
 
-// Upon extension being installed, listen for when a Reddit
-// tab is active.
-chrome.runtime.onInstalled.addListener( () => {
+// Listen for active tab changes.
+chrome.tabs.onActivated.addListener( () => {
+    console.log('Checking for Reddit tab...');
+    // Get URL of current tab.
+    let currentTabURL = chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
+        let url = tabs[0].url;
+        
+        console.log('URL = ' + url);
+        // Check if the tab's URL is a Reddit URL.
+        if (url.indexOf('reddit.com') != -1) {
+            console.log('WERE AT REDDIT!!!');
+        }
+    });
+
+    // Listen for when a Reddit tab is active.
 
     // Continuously update time variables as the user spends more time on Reddit.
     chrome.storage.sync.set({totalTime: 0}, () => {
         console.log("Reddit time logging has started.");
     });
-    alert('hello');
+    // alert('hello');
     console.log('asdf');
 });
+
+// Listen for current tab URL changes.
+
 
 chrome.runtime.onMessage.addListener( (response, sender, sendResponse) => {
     // 'response' is whatever response is sent by the contentscript.js
