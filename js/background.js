@@ -1,11 +1,11 @@
-console.log('Background.js started.');
-
+// Initialize global time variables.
 todaySec = 0;
 weekSec = 0;
 monthSec = 0;
 yearSec = 0;
 alltimeSec = 0;
 
+// Initialize time variables in storage.
 chrome.runtime.onInstalled.addListener( () => {    
     // Create time variables in storage.
     chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
@@ -16,14 +16,7 @@ chrome.runtime.onInstalled.addListener( () => {
         alltimeSec = 0;
         console.log('Time variables have been created and stored.');
     });
-
-    // DEBUGGING AND TESTING PURPOSES ONLY.
-    chrome.storage.sync.get(['todaySec', 'weekSec'], (result) => {
-        console.log('todaySec = ' + result.todaySec);
-        console.log('weekSec = ' + result.weekSec);
-    });
 });
-
 
 // Listen for active tab changes.
 chrome.tabs.onActivated.addListener( () => {
@@ -62,80 +55,26 @@ chrome.tabs.onActivated.addListener( () => {
                     alltimeSec++;
 
                     // Update time variables in storage every second.
-                    chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
-                        // clearInterval(timer);
+                    chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {                        
                         console.log('TIME VARIABLES HAVE BEEN UPDATED.');
                         console.log('todaySec = ' + todaySec);
                         console.log('weekSec = ' + weekSec);
                         console.log('monthSec = ' + monthSec);
                         console.log('yearSec = ' + yearSec);
                         console.log('alltimeSec = ' + alltimeSec);
-                    });
-                    
-
-                    // If active tab's URL is no longer Reddit, stop updating time variables.                    
-                    // chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-                    //     // Once new page is done loading, check if URL is Reddit.
-                    //     if (changeInfo.status === 'complete') {    
-                    //         if (tab.url.indexOf('.reddit') == -1) {            
-                    //             // console.log('TAB IS NO LONGER REDDIT!!!');
-
-                    //             // // Update time variables in storage and stop tracking time.
-                    //             // chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
-                    //             //     clearInterval(timer);
-                    //             //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
-                    //             //     console.log('NEW TODAYSEC = ' + todaySec);
-                    //             //     console.log('NEW WEEKSEC = ' + weekSec);
-                    //             //     console.log('NEW MONTHSEC = ' + monthSec);
-                    //             //     console.log('NEW YEARSEC = ' + yearSec);
-                    //             //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
-                    //             // });
-
-                    //         }
-                    //     }
-                    // });
-
-
+                    });                
                 }, 1000);
             });            
-            
-            
-
-            
-            // while (url.indexOf('reddit.com' != -1)) {
-                
-            // }
-
         }
         else {
-            if (timer) {
+            if (typeof timer !== 'undefined') {
                 clearInterval(timer);
+            }
+            else {
+                console.log('Timer is not defined');
             }
             console.log('TIMER STOPPED.');
             console.log('TAB IS NO LONGER REDDIT!!!');
-
-            // // USE LOCAL STORAGE??????
-            // localStorage['todaySec'] = todaySec;
-            // localStorage.setItem({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
-            //     clearInterval(timer);
-            //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
-            //     console.log('NEW TODAYSEC = ' + todaySec);
-            //     console.log('NEW WEEKSEC = ' + weekSec);
-            //     console.log('NEW MONTHSEC = ' + monthSec);
-            //     console.log('NEW YEARSEC = ' + yearSec);
-            //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
-            // });
-
-            // // Update time variables in storage and stop tracking time.
-            // chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
-            //     clearInterval(timer);
-            //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
-            //     console.log('NEW TODAYSEC = ' + todaySec);
-            //     console.log('NEW WEEKSEC = ' + weekSec);
-            //     console.log('NEW MONTHSEC = ' + monthSec);
-            //     console.log('NEW YEARSEC = ' + yearSec);
-            //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
-            // });
         }
     });            
 
@@ -173,33 +112,3 @@ chrome.runtime.onConnect.addListener( (port) => {
 //         }
 //     }
 // });
-
-
-
-// When there is a tab change
-// https://developers.chrome.com/extensions/events
-// https://developers.chrome.com/extensions/runtime
-// https://developers.chrome.com/extensions/tabs
-// https://developers.chrome.com/extensions/webRequest
-// https://developers.chrome.com/extensions/webNavigation
-
-    // While the active tab is reddit.com:
-
-        // Get the relevant time variables from storage (todayMin, weekMin, monthMin, yearMin, alltimeMin)
-        // https://developers.chrome.com/extensions/storage
-
-        // After each minute, add 1 to each of these variables
-
-    // Store updated time variables in storage
-    // https://developers.chrome.com/extensions/storage
-
-
-
-// Listen for browser action click
-// https://developers.chrome.com/extensions/events
-
-    // Get time variables from local storage
-    // https://developers.chrome.com/extensions/storage
-
-    // Pass time variables to popup.js
-    // https://developers.chrome.com/extensions/extension
