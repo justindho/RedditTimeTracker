@@ -12,13 +12,11 @@ let now = new Date();
 let then = new Date(now);
 then.setHours(24, 0, 0, 0);
 let msUntilMidnight = (then - now);
-console.log('ms until midnight = ' + msUntilMidnight);
 
 // Set current date/time variables for comparison at midnight each day.
 day = now.getDay();
 let result = getWeekNumber(new Date());
 week = result[1];
-console.log('Week #: ' + week);
 month = now.getMonth();
 year = now.getFullYear();
 
@@ -45,15 +43,6 @@ setTimeout( () => {
         }
     }, 1000 * 60 * 60 * 24);
 }, msUntilMidnight);
-
-/**
- * Reset time variables as needed.
- */
-setInterval( () => {
-    let date = new Date();
-    if (date.getSeconds() % 7 == 0) console.log('Resetting todaySec');
-    // if (date.getFullYear())
-}, 1000);
 
 /**
  * Initialize time variables in storage.
