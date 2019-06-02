@@ -1,12 +1,23 @@
 console.log('Background.js started.');
 
+todaySec = 0;
+weekSec = 0;
+monthSec = 0;
+yearSec = 0;
+alltimeSec = 0;
+
 chrome.runtime.onInstalled.addListener( () => {    
     // Create time variables in storage.
     chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
+        todaySec = 0;
+        weekSec = 0;
+        monthSec = 0;
+        yearSec = 0;
+        alltimeSec = 0;
         console.log('Time variables have been created and stored.');
     });
 
-    // THIS IS HERE FOR TESTING & DEBUGGING PURPOSES ONLY.
+    // DEBUGGING AND TESTING PURPOSES ONLY.
     chrome.storage.sync.get(['todaySec', 'weekSec'], (result) => {
         console.log('todaySec = ' + result.todaySec);
         console.log('weekSec = ' + result.weekSec);
@@ -33,11 +44,11 @@ chrome.tabs.onActivated.addListener( () => {
 
             // Get time variables from storage.
             chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {
-                let todaySec = result.todaySec;
-                let weekSec = result.weekSec;
-                let monthSec = result.monthSec;
-                let yearSec = result.yearSec;
-                let alltimeSec = result.alltimeSec;
+                todaySec = result.todaySec;
+                weekSec = result.weekSec;
+                monthSec = result.monthSec;
+                yearSec = result.yearSec;
+                alltimeSec = result.alltimeSec;
                 console.log('UPDATED TODAYSEC = ' + todaySec);
 
                 // Continuously update time variables while the active tab's URL is Reddit.
@@ -54,11 +65,11 @@ chrome.tabs.onActivated.addListener( () => {
                     chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
                         // clearInterval(timer);
                         console.log('TIME VARIABLES HAVE BEEN UPDATED.');
-                        console.log('NEW TODAYSEC = ' + todaySec);
-                        console.log('NEW WEEKSEC = ' + weekSec);
-                        console.log('NEW MONTHSEC = ' + monthSec);
-                        console.log('NEW YEARSEC = ' + yearSec);
-                        console.log('NEW ALLTIMESEC = ' + alltimeSec);
+                        console.log('todaySec = ' + todaySec);
+                        console.log('weekSec = ' + weekSec);
+                        console.log('monthSec = ' + monthSec);
+                        console.log('yearSec = ' + yearSec);
+                        console.log('alltimeSec = ' + alltimeSec);
                     });
                     
 
@@ -97,9 +108,11 @@ chrome.tabs.onActivated.addListener( () => {
 
         }
         else {
-            clearInterval(timer);
-            // console.log('TIMER STOPPED.');
-            // console.log('TAB IS NO LONGER REDDIT!!!');
+            if (timer) {
+                clearInterval(timer);
+            }
+            console.log('TIMER STOPPED.');
+            console.log('TAB IS NO LONGER REDDIT!!!');
 
             // // USE LOCAL STORAGE??????
             // localStorage['todaySec'] = todaySec;
@@ -128,9 +141,25 @@ chrome.tabs.onActivated.addListener( () => {
 
 });
 
-function updateTimes() {
-
-};
+// When port to popup.js is connected, send over time variables.
+chrome.runtime.onConnect.addListener( (port) => {
+    console.log('Connected .....');
+    console.assert(port.name == 'updatePopupHTML');
+    port.onMessage.addListener( (msg) => {
+        if (msg.msg == 'Request time variables.') {
+            console.log('POSTING MESSAGE FROM BACKGROUND.JS!!!!');
+            port.postMessage({
+                todaySec: todaySec,
+                weekSec: weekSec,
+                monthSec: monthSec,
+                yearSec: yearSec,
+                alltimeSec: alltimeSec,
+            });
+            
+            console.log('Posted message to popup.js');
+        }
+    }); 
+});
 
 // Listen for current tab's URL changes.
 // chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
@@ -144,18 +173,6 @@ function updateTimes() {
 //         }
 //     }
 // });
-
-
-chrome.runtime.onMessage.addListener( (response, sender, sendResponse) => {
-    // 'response' is whatever response is sent by the contentscript.js
-    alert(response);
-    // 'sender' holds information about the tab (tab.id, tab info)
-
-    // 'sendReponse' is any response we want to send back to the content scripts 
-});
-
-
-
 
 
 
