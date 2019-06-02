@@ -2,43 +2,148 @@ console.log('Background.js started.');
 
 chrome.runtime.onInstalled.addListener( () => {    
     // Create time variables in storage.
-    chrome.storage.sync.set({'todayMin': 0, 'weekMin': 0, 'monthMin': 0, 'yearMin': 0, 'alltimeMin': 0}, () => {
+    chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
         console.log('Time variables have been created and stored.');
     });
 
+    // THIS IS HERE FOR TESTING & DEBUGGING PURPOSES ONLY.
+    chrome.storage.sync.get(['todaySec', 'weekSec'], (result) => {
+        console.log('todaySec = ' + result.todaySec);
+        console.log('weekSec = ' + result.weekSec);
+    });
 });
 
-// THIS IS HERE FOR TESTING & DEBUGGING PURPOSES ONLY.
-chrome.storage.sync.get(['todayMin', 'weekMin'], (result) => {
-    console.log('todayMin = ' + result.todayMin);
-    console.log('weekMin = ' + result.weekMin);
-});
 
 // Listen for active tab changes.
 chrome.tabs.onActivated.addListener( () => {
     console.log('Checking for Reddit tab...');
     // Get URL of current tab.
-    let currentTabURL = chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
+    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
         let url = tabs[0].url;
         
         console.log('URL = ' + url);
-        // Check if the tab's URL is a Reddit URL.
-        if (url.indexOf('reddit.com') != -1) {
+
+        ////////////////////////////////////////////////////////////////////////////////
+        ////// BUG HERE; ACTIVE TAB LISTENER DOESN'T WORK ONCE WE REACH THIS POINT /////
+        ////// HAS SOMETHING TO DO WITH SETINTERVAL() IN THIS FUNCTION /////////////////
+        ////////////////////////////////////////////////////////////////////////////////
+        // If tab URL is Reddit, start logging times.
+        if (url.indexOf('.reddit') != -1) {
             console.log('WERE AT REDDIT!!!');
+
+            // Get time variables from storage.
+            chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {
+                let todaySec = result.todaySec;
+                let weekSec = result.weekSec;
+                let monthSec = result.monthSec;
+                let yearSec = result.yearSec;
+                let alltimeSec = result.alltimeSec;
+                console.log('UPDATED TODAYSEC = ' + todaySec);
+
+                // Continuously update time variables while the active tab's URL is Reddit.
+                timer = setInterval( () => {
+                    console.log("Logging Reddit time...");
+                    
+                    todaySec++;
+                    weekSec++;
+                    monthSec++;
+                    yearSec++;
+                    alltimeSec++;
+
+                    // Update time variables in storage every second.
+                    chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
+                        // clearInterval(timer);
+                        console.log('TIME VARIABLES HAVE BEEN UPDATED.');
+                        console.log('NEW TODAYSEC = ' + todaySec);
+                        console.log('NEW WEEKSEC = ' + weekSec);
+                        console.log('NEW MONTHSEC = ' + monthSec);
+                        console.log('NEW YEARSEC = ' + yearSec);
+                        console.log('NEW ALLTIMESEC = ' + alltimeSec);
+                    });
+                    
+
+                    // If active tab's URL is no longer Reddit, stop updating time variables.                    
+                    // chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+                    //     // Once new page is done loading, check if URL is Reddit.
+                    //     if (changeInfo.status === 'complete') {    
+                    //         if (tab.url.indexOf('.reddit') == -1) {            
+                    //             // console.log('TAB IS NO LONGER REDDIT!!!');
+
+                    //             // // Update time variables in storage and stop tracking time.
+                    //             // chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
+                    //             //     clearInterval(timer);
+                    //             //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
+                    //             //     console.log('NEW TODAYSEC = ' + todaySec);
+                    //             //     console.log('NEW WEEKSEC = ' + weekSec);
+                    //             //     console.log('NEW MONTHSEC = ' + monthSec);
+                    //             //     console.log('NEW YEARSEC = ' + yearSec);
+                    //             //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
+                    //             // });
+
+                    //         }
+                    //     }
+                    // });
+
+
+                }, 1000);
+            });            
+            
+            
+
+            
+            // while (url.indexOf('reddit.com' != -1)) {
+                
+            // }
+
         }
-    });
+        else {
+            clearInterval(timer);
+            // console.log('TIMER STOPPED.');
+            // console.log('TAB IS NO LONGER REDDIT!!!');
 
-    // Listen for when a Reddit tab is active.
+            // // USE LOCAL STORAGE??????
+            // localStorage['todaySec'] = todaySec;
+            // localStorage.setItem({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
+            //     clearInterval(timer);
+            //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
+            //     console.log('NEW TODAYSEC = ' + todaySec);
+            //     console.log('NEW WEEKSEC = ' + weekSec);
+            //     console.log('NEW MONTHSEC = ' + monthSec);
+            //     console.log('NEW YEARSEC = ' + yearSec);
+            //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
+            // });
 
-    // Continuously update time variables as the user spends more time on Reddit.
-    chrome.storage.sync.set({totalTime: 0}, () => {
-        console.log("Reddit time logging has started.");
-    });
-    // alert('hello');
-    console.log('asdf');
+            // // Update time variables in storage and stop tracking time.
+            // chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
+            //     clearInterval(timer);
+            //     console.log('TIME VARIABLES HAVE BEEN UPDATED. STOP TIME TRACKING.');
+            //     console.log('NEW TODAYSEC = ' + todaySec);
+            //     console.log('NEW WEEKSEC = ' + weekSec);
+            //     console.log('NEW MONTHSEC = ' + monthSec);
+            //     console.log('NEW YEARSEC = ' + yearSec);
+            //     console.log('NEW ALLTIMESEC = ' + alltimeSec);
+            // });
+        }
+    });            
+
 });
 
-// Listen for current tab URL changes.
+function updateTimes() {
+
+};
+
+// Listen for current tab's URL changes.
+// chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+//     // Once new page is done loading, check if URL is Reddit.
+//     if (changeInfo.status === 'complete') {    
+//         if (tab.url.indexOf('.reddit') != -1) {            
+//             console.log('Tab changed to REDDIT!!!');
+
+//             // Tell content script to start logging time.
+
+//         }
+//     }
+// });
 
 
 chrome.runtime.onMessage.addListener( (response, sender, sendResponse) => {
