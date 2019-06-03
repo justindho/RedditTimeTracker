@@ -7,6 +7,20 @@ let monthSec = 0;
 let yearSec = 0;
 let alltimeSec = 0;
 
+/**
+ * Initialize time variables in storage.
+ */
+chrome.runtime.onInstalled.addListener( () => {    
+    chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
+        todaySec = 0;
+        weekSec = 0;
+        monthSec = 0;
+        yearSec = 0;
+        alltimeSec = 0;
+        console.log('Time variables have been created and stored.');
+    });
+});
+
 // Get offset between current time and midnight.
 let now = new Date();
 let then = new Date(now);
@@ -45,21 +59,6 @@ setTimeout( () => {
 }, msUntilMidnight);
 
 /**
- * Initialize time variables in storage.
- */
-chrome.runtime.onInstalled.addListener( () => {
-    // Create time variables in storage.
-    chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
-        todaySec = 0;
-        weekSec = 0;
-        monthSec = 0;
-        yearSec = 0;
-        alltimeSec = 0;
-        console.log('Time variables have been created and stored.');
-    });
-});
-
-/**
  * Listen for active tab changes. If active tab's URL is Reddit, continually
  * update time variables. Otherwise, if there was a previous timer running,
  * stop the timer.
@@ -73,8 +72,7 @@ chrome.tabs.onActivated.addListener( () => {
         console.log('URL = ' + url);
 
         // If tab URL is Reddit, start logging times.
-        if (url.indexOf('.reddit') != -1) {
-            console.log('WERE AT REDDIT!!!');
+        if (url.indexOf('.reddit') != -1) {            
             updateTimes();            
         }
         else {
@@ -83,35 +81,10 @@ chrome.tabs.onActivated.addListener( () => {
             }
             else {
                 console.log('Timer is not defined');
-            }
-            console.log('TIMER STOPPED.');
-            console.log('TAB IS NO LONGER REDDIT!!!');
+            }            
         }
     });
 
-});
-
-/**
- * When port to popup.js is connected, send time variables 
- * via message.
- */
-chrome.runtime.onConnect.addListener( (port) => {
-    console.log('Connected .....');
-    console.assert(port.name == 'updatePopupHTML');
-    port.onMessage.addListener( (msg) => {
-        if (msg.msg == 'Request time variables.') {
-            console.log('POSTING MESSAGE FROM BACKGROUND.JS!!!!');
-            port.postMessage({
-                todaySec: todaySec,
-                weekSec: weekSec,
-                monthSec: monthSec,
-                yearSec: yearSec,
-                alltimeSec: alltimeSec,
-            });
-
-            console.log('Posted message to popup.js');
-        }
-    });
 });
 
 /**
@@ -121,15 +94,26 @@ chrome.runtime.onConnect.addListener( (port) => {
 chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
     // Once new page is done loading, check if URL is Reddit.
     if (changeInfo.status === 'complete') {
-        if (tab.url.indexOf('.reddit') != -1) {
-            console.log('Tab is REDDIT!!!');
+        if (tab.url.indexOf('.reddit') != -1) {            
             updateTimes();
         }
+    }
+    else {
+        if (typeof timer !== 'undefined') {
+            clearInterval(timer);
+        }
+        else {
+            console.log('Timer is not defined');
+        }        
     }
 });
 
 /**
  * Update time variables in storage.
+ * 
+ * Chrome storage only allows for writing to storage a maximum of 
+ * once every 2 seconds.
+ * https://developer.chrome.com/apps/storage#type-StorageArea
  */
 function updateTimes() {    
     // Get time variables from storage.
@@ -138,8 +122,7 @@ function updateTimes() {
         weekSec = result.weekSec;
         monthSec = result.monthSec;
         yearSec = result.yearSec;
-        alltimeSec = result.alltimeSec;
-        console.log('UPDATED TODAYSEC = ' + todaySec);
+        alltimeSec = result.alltimeSec;        
 
         // Continuously update time variables while the active tab's URL is Reddit.
         timer = setInterval( () => {
@@ -160,7 +143,7 @@ function updateTimes() {
                 console.log('yearSec = ' + yearSec);
                 console.log('alltimeSec = ' + alltimeSec);
             });
-        }, 1000);
+        }, 5000);
     });
 };
 
@@ -192,9 +175,31 @@ function getWeekNumber(d) {
     // Make Sunday's day number 7
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
     // Get first day of year
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0,1));
     // Calculate full weeks to nearest Thursday
-    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    let weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1) / 7);
     // Return array of year and week number
     return [d.getUTCFullYear(), weekNo];
 }
+
+/**
+ * When port to popup.js is connected, send time variables 
+ * via message.
+ */
+chrome.runtime.onConnect.addListener( (port) => {
+    console.log('Connected .....');
+    console.assert(port.name == 'updatePopupHTML');
+    port.onMessage.addListener( (msg) => {
+        if (msg.msg == 'Request time variables.') {            
+            port.postMessage({
+                todaySec: todaySec,
+                weekSec: weekSec,
+                monthSec: monthSec,
+                yearSec: yearSec,
+                alltimeSec: alltimeSec,
+            });
+
+            console.log('Posted time variables to popup.js');
+        }
+    });
+});

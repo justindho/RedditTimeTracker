@@ -63,7 +63,7 @@ function displayTime(seconds) {
     }
     else if (seconds / secInHr >= 1) {
         let hrs = Math.floor(seconds / secInHr);
-        let mins = Math.floor(seconds % secInHr);
+        let mins = Math.floor((seconds % secInHr) / secInMin);
         return hrs + " hr " + mins + " min";
     }
     else if (seconds / secInMin >= 1) {
