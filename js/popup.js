@@ -36,7 +36,7 @@ function displayTime(seconds) {
         let months = Math.floor((seconds % secInYr) / secInMonth);
         let weeks = Math.floor(((seconds % secInYr) % secInMonth) / secInWeek);
         let days = Math.floor((((seconds % secInYr) % secInMonth) % secInWeek) / secInDay);
-        let hours = Math.floor(((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) / secInHr);
+        let hrs = Math.floor(((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) / secInHr);
         let mins = Math.floor((((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
         return years + " yr " + months + " month " + weeks + " week " + days + " day " + hrs + " hr " + mins + " min";
     }
@@ -44,7 +44,7 @@ function displayTime(seconds) {
         let months = Math.floor(seconds / secInMonth);
         let weeks = Math.floor((seconds % secInMonth) / secInWeek);
         let days = Math.floor(((seconds % secInMonth) % secInWeek) / secInDay);
-        let hours = Math.floor((((seconds % secInMonth) % secInWeek) % secInDay) / secInHr);
+        let hrs = Math.floor((((seconds % secInMonth) % secInWeek) % secInDay) / secInHr);
         let mins = Math.floor(((((seconds % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
         return months + " month " + weeks + " week " + days + " day " + hrs + " hr " + mins + " min";
     }
