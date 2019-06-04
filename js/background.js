@@ -128,11 +128,11 @@ function updateTimes() {
         timer = setInterval( () => {
             console.log("Logging Reddit time...");
 
-            todaySec++;
-            weekSec++;
-            monthSec++;
-            yearSec++;
-            alltimeSec++;
+            todaySec += 5;
+            weekSec += 5;
+            monthSec += 5;
+            yearSec += 5;
+            alltimeSec += 5;
 
             // Update time variables in storage every second.
             chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
