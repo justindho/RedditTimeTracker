@@ -3,12 +3,11 @@
     "version": "0.0.1",
     "description": "Track how much time you're spending on Reddit.",
     "manifest_version": 2,
-    "author": "Justin Ho",    
+    "author": "Justin Ho",
     "background": {
         "persistent": true,
         "scripts": [
-            "js/background.js",
-            "js/popup.js"
+            "js/background.js"
         ]
     },
     "browser_action": {
@@ -19,16 +18,15 @@
     "content_scripts": [
         {
             "matches": [
+                "http://*.reddit.com/*",
                 "https://*.reddit.com/*"
             ],
             "js": [
-                "js/background.js",
-                "js/popup.js"
+                "js/app.js"                
             ],
             "css": [
-                "css/popup.css"
-            ],
-            "run_at": "document_idle"
+                "css/app.css"
+            ]
         }
     ],
     "icons": {
@@ -40,15 +38,17 @@
     "options_ui": {
         "page": "templates/options.html",
         "chrome_style": true
-    },    
+    },
     "permissions": [
-        "contextMenus",
-        "declarativeContent",
+        "activeTab",
         "https://www.reddit.com/",
-        "https://old.reddit.com/",        
-        "storage"
+        "https://old.reddit.com/",
+        "storage", 
+        "tabs"
     ],
     "web_accessible_resources": [
-        "css/popup.css"
+        "css/popup.css",
+        "css/dom.css",
+        "img/*.png"
     ]
 }
