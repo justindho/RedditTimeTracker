@@ -6,6 +6,51 @@ chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec':
     console.log('Local time variables have been created and stored.');
 });
 
+// Get offset between current time and midnight.
+let now = new Date();
+let then = new Date(now);
+then.setHours(24, 0, 0, 0);
+let msUntilMidnight = (then - now);
+
+// Set current date/time variables for comparison at midnight each day.
+let day = now.getDay();
+let result = getWeekNumber(new Date());
+let week = result[1];
+let month = now.getMonth();
+let year = now.getFullYear();
+
+/**
+ * At midnight every day, reset day/week/month/year variables 
+ * as appropriate for updating various time variables.
+ */
+setTimeout( () => {
+    setInterval( () => {
+        let d = new Date();
+        let todaySec = chrome.storage.local.get('todaySec');
+        chrome.storage.local.set({'prevDaySec': todaySec});
+        chrome.storage.local.set({'todaySec': 0});        
+        let weekResult = getWeekNumber(new Date());
+        if (weekResult[1] != week) {
+            let weekSec = chrome.storage.local.get('weekSec');
+            chrome.storage.local.set({'prevWeekSec': weekSec});
+            chrome.storage.local.set({'weekSec': 0});         
+            week = weekResult[1];
+        }
+        if (d.getMonth() != month) {
+            let monthSec = chrome.storage.local.get('monthSec');
+            chrome.storage.local.set({'prevMonthSec': monthSec});
+            chrome.storage.local.set({'monthSec': 0});
+            month = d.getMonth();
+        }
+        if (d.getFullYear() != year) {
+            let yearSec = chrome.storage.local.get('yearSec');
+            chrome.storagel.local.set({'prevYearSec': yearSec});
+            chrome.storage.local.set({'yearSec': 0});
+            year++;
+        }
+    }, 1000 * 60 * 60 * 24);
+}, msUntilMidnight);
+
 /**
  * Add stopwatch to webpage.
  */
@@ -68,7 +113,7 @@ document.onreadystatechange = () => {
  * Check for tab changes. If tab URL is Reddit, update time statistics.
  */
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && document.hasFocus()) {
+    if (document.visibility === 'visible' && document.hasFocus()) {
         updateTimes();
     }
     else {
@@ -195,7 +240,7 @@ function displayTime(seconds) {
         let days = Math.floor((((seconds % secInYr) % secInMonth) % secInWeek) / secInDay);
         let hrs = Math.floor(((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) / secInHr);
         let mins = Math.floor((((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
-        return years + " yr " + months + " month " + weeks + " week " + days + " day " + hrs + " hr " + mins + " min";
+        return years + " y " + months + " m " + weeks + " w " + days + " d " + hrs + " h " + mins + " min";
     }
     else if (seconds / secInMonth >= 1) {
         let months = Math.floor(seconds / secInMonth);
@@ -203,25 +248,25 @@ function displayTime(seconds) {
         let days = Math.floor(((seconds % secInMonth) % secInWeek) / secInDay);
         let hrs = Math.floor((((seconds % secInMonth) % secInWeek) % secInDay) / secInHr);
         let mins = Math.floor(((((seconds % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
-        return months + " month " + weeks + " week " + days + " day " + hrs + " hr " + mins + " min";
+        return months + " m " + weeks + " w " + days + " d " + hrs + " h " + mins + " min";
     }
     else if (seconds / secInWeek >= 1) {
         let weeks = Math.floor(seconds / secInWeek)
         let days = Math.floor((seconds % secInWeek) / secInDay);
         let hrs = Math.floor(((seconds % secInWeek) % secInDay) / secInHr);
         let mins = Math.floor((((seconds % secInWeek) % secInDay) % secInHr) / secInMin);
-        return weeks + " wk " + days + " day " + hrs + " hr " + mins + " min";
+        return weeks + " w " + days + " d " + hrs + " h " + mins + " min";
     }
     else if (seconds / secInDay >= 1) {
         let days = Math.floor(seconds / secInDay);
         let hrs = Math.floor((seconds % secInDay) / secInHr);
         let mins = Math.floor(((seconds % secInDay) % secInHr) / secInMin);
-        return days + " day " + hrs + " hr " + mins + " min";
+        return days + " d " + hrs + " h " + mins + " min";
     }
     else if (seconds / secInHr >= 1) {
         let hrs = Math.floor(seconds / secInHr);
         let mins = Math.floor((seconds % secInHr) / secInMin);
-        return hrs + " hr " + mins + " min";
+        return hrs + " h " + mins + " min";
     }
     else if (seconds / secInMin >= 1) {
         return Math.floor(seconds / secInMin) + " min";
