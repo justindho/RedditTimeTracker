@@ -1,13 +1,4 @@
 /**
- * Initialize global time variables.
- */
-let todaySec = 0;
-let weekSec = 0;
-let monthSec = 0;
-let yearSec = 0;
-let alltimeSec = 0;
-
-/**
  * Initialize time variables in local storage.
  */
 chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
@@ -22,35 +13,33 @@ chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec':
 /**
  * Add stopwatch to webpage.
  */
-let stopwatchBlock = () => {
-    console.log('STOPWATCHBLOCK STARTED');
+let stopwatchBlock = () => {    
     // Get location in HTML to insert the stopwatch icon.
     let redditHome = document.querySelector('[aria-label="Home"]');
     let stopwatchDiv = document.getElementById('stopwatchDiv');
 
     // If the stopwatch div is undefined, create it.
-    if (!stopwatchDiv) {
-        console.log('STOPWATCHBLOCK DOESNT EXIST YET');
+    if (!stopwatchDiv) {        
         stopwatchDiv = document.createElement('div');
         stopwatchDiv.id = 'reddit-time-tracker';
         stopwatchDiv.innerHTML = '<div id="reddit-time-tracker__body"> \
                                     <div id="reddit-time-tracker__logo"></div> \
-                                    <div id="reddit-time-tracker__time">\n</div>\n\n\n \
-                                      <div id="reddit-time-tracker__popup"> \
-                                        <div id="reddit-time-tracker__popup-body"> \
+                                    <div id="reddit-time-tracker__time"></div>\n\n\n \
+                                    <div id="reddit-time-tracker__popup"> \
+                                      <div id="reddit-time-tracker__popup-body"> \
                                         <div id="reddit-time-tracker__name">Reddit Time Tracker</div> \
                                         <ul id="reddit-time-tracker__stats">\
-                                        <li>Today: <span id="todayTime"></span></li> \
-                                        <li>This week: <span id="weekTime"></span></li> \
-                                        <li>This month: <span id="monthTime"></span></li> \
-                                        <li>This year: <span id="yearTime"></span></li> \
-                                        <li>All time: <span id="alltimeTime"></span></li> \
+                                          <li>Today: <span id="todayTime"></span></li> \
+                                          <li>This week: <span id="weekTime"></span></li> \
+                                          <li>This month: <span id="monthTime"></span></li> \
+                                          <li>This year: <span id="yearTime"></span></li> \
+                                          <li>All time: <span id="alltimeTime"></span></li> \
                                         </ul> \
                                         <div id="reddit-time-tracker__links"> \
-                                          <a href="https://github.com/justindho/RedditTimeTracker">Source Code</a>\
+                                          <a href="https://github.com/justindho/RedditTimeTracker">Source Code          </a>\
+                                          <a href="https://docs.google.com/forms/d/1LQsPc7fTO3wF6NUFioRmzLk-X9QysKo-W2WqF0D6ZE4/edit">Provide Feedback</a>\
                                         </div> \
-                                      </div> \
-                                    </div> \
+                                      </div>\
                                     </div> \
                                   </div>';
         // Create stopwatch logo.
@@ -68,20 +57,48 @@ let stopwatchBlock = () => {
 
 stopwatchBlock();
 
+// Check for when a page is loaded;.
+document.onreadystatechange = () => {
+    if (document.readyState === 'complete') {
+        updateTimes();
+    }
+};
+
 // Update stopwatchDiv with time statistics every second.
-setInterval( () => {    
-    console.log('IN SETINTERVAL()');
-    chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {        
-        document.getElementById('todayTime').innerHTML = displayTime(result.todaySec++);
-        document.getElementById('weekTime').innerHTML = displayTime(result.weekSec++);
-        document.getElementById('monthTime').innerHTML = displayTime(result.monthSec++);
-        document.getElementById('yearTime').innerHTML = displayTime(result.yearSec++);
-        document.getElementById('alltimeTime').innerHTML = displayTime(result.alltimeSec++);
-        chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec})
-    });
-    console.log('IN SETINTERVAL() COMPLETE');
-        
-}, 1000);
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        updateTimes();
+    }
+    else {
+        if (typeof timer == 'undefined') {
+            console.log('TIMER IS UNDEFINED');
+        }
+        else {
+            clearInterval(timer);
+        }
+    }
+});
+
+
+function updateTimes() {
+    timer = setInterval( () => {        
+        try {
+            chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {    
+                document.getElementById('reddit-time-tracker__time').innerHTML = displayTime(result.todaySec);
+                document.getElementById('todayTime').innerHTML = displayTime(result.todaySec++);
+                document.getElementById('weekTime').innerHTML = displayTime(result.weekSec++);
+                document.getElementById('monthTime').innerHTML = displayTime(result.monthSec++);
+                document.getElementById('yearTime').innerHTML = displayTime(result.yearSec++);
+                document.getElementById('alltimeTime').innerHTML = displayTime(result.alltimeSec++);
+                console.log('todaySec: ' + result.todaySec);
+                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec})
+            });
+        }
+        catch(err) {
+            console.log(err.message);
+        }            
+    }, 1000);
+}
 
 /**
  * Get week number.
