@@ -1,12 +1,8 @@
 /**
- * Initialize time variables in local storage.
+ * Initialize (current and previous) time variables in local storage.
  */
-chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
-    todaySec = 0;
-    weekSec = 0;
-    monthSec = 0;
-    yearSec = 0;
-    alltimeSec = 0;
+chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+                           'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
     console.log('Local time variables have been created and stored.');
 });
 
@@ -23,8 +19,10 @@ let stopwatchBlock = () => {
         stopwatchDiv = document.createElement('div');
         stopwatchDiv.id = 'reddit-time-tracker';
         stopwatchDiv.innerHTML = '<div id="reddit-time-tracker__body"> \
-                                    <div id="reddit-time-tracker__logo"></div> \
-                                    <div id="reddit-time-tracker__time"></div>\n\n\n \
+                                    <div id="reddit-time-tracker__logotime">\
+                                      <div id="reddit-time-tracker__logo"></div> \
+                                      <div id="reddit-time-tracker__time"></div> \
+                                    </div><br> \
                                     <div id="reddit-time-tracker__popup"> \
                                       <div id="reddit-time-tracker__popup-body"> \
                                         <div id="reddit-time-tracker__name">Reddit Time Tracker</div> \
@@ -34,9 +32,9 @@ let stopwatchBlock = () => {
                                           <li>This month: <span id="monthTime"></span></li> \
                                           <li>This year: <span id="yearTime"></span></li> \
                                           <li>All time: <span id="alltimeTime"></span></li> \
-                                        </ul> \
+                                        </ul><br> \
                                         <div id="reddit-time-tracker__links"> \
-                                          <a href="https://github.com/justindho/RedditTimeTracker">Source Code          </a>\
+                                          <a href="https://github.com/justindho/RedditTimeTracker">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
                                           <a href="https://docs.google.com/forms/d/1LQsPc7fTO3wF6NUFioRmzLk-X9QysKo-W2WqF0D6ZE4/edit">Provide Feedback</a>\
                                         </div> \
                                       </div>\
@@ -57,26 +55,53 @@ let stopwatchBlock = () => {
 
 stopwatchBlock();
 
-// Check for when a page is loaded;.
+/**
+ * Check for when a page is loaded. If it is Reddit, update time variables.
+ */
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
         updateTimes();
     }
 };
 
-// Update stopwatchDiv with time statistics every second.
+/**
+ * Check for tab changes. If tab URL is Reddit, update time statistics.
+ */
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
+    if (!document.hidden && document.hasFocus()) {
         updateTimes();
     }
     else {
-        if (typeof timer == 'undefined') {
-            console.log('TIMER IS UNDEFINED');
-        }
-        else {
-            clearInterval(timer);
-        }
+        clearTimer();
     }
+});
+
+/**
+ * If Reddit tab is about to lose focus, stop updating time variables.
+ */
+// window.addEventListener('onblur', () => {
+//     console.log('LOST FOCUS!!');
+//     clearTimer();
+// });
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('body').addEventListener('blur', () => {
+        console.log('LOST FOCUS!!');
+        clearTimer();
+    });
+});
+
+/**
+ * If Reddit tab is about to get focus, start updating time variables.
+ */
+// window.addEventListener('onfocus', () => {
+//     console.log('REGAINED FOCUS');
+//     updateTimes();
+// });
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('body').addEventListener('focus', () => {
+        console.log('REGAINED FOCUS!!');
+        updateTimes();
+    });
 });
 
 
@@ -98,6 +123,19 @@ function updateTimes() {
             console.log(err.message);
         }            
     }, 1000);
+}
+
+/**
+ * Clear timer if it's been created already.
+ * @param {} d 
+ */
+function clearTimer() {
+    if (typeof timer == 'undefined') {
+        console.log('TIMER IS UNDEFINED');
+    }
+    else {
+        clearInterval(timer);
+    }
 }
 
 /**
