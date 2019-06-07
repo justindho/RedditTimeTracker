@@ -1,12 +1,32 @@
 "use strict";
 
 /**
- * Initialize (current and previous) time variables in local storage.
+ * If time variables haven't been created in local storage yet, 
+ * initialize (current and previous) time variables in local storage.
  */
-chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
-                           'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
-    console.log('Local time variables have been created and stored.');
-});
+// console.log(typeof chrome.storage.local.get('todaySec'));
+try {
+    chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], () => {
+                                          console.log('Time variables already exist in local storage.');
+                                      });
+}
+catch {
+    chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+                            'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
+        console.log('Local time variables have been created and stored.');
+    });
+}
+// if (typeof chrome.storage.local.get('todaySec') == 'undefined'
+//     && typeof chrome.storage.local.get('weekSec') == 'undefined'
+//     && typeof chrome.storage.local.get('monthSec') == 'undefined'
+//     && typeof chrome.storage.local.get('yearSec') == 'undefined'
+//     && typeof chrome.storage.local.get('alltimeSec') == 'undefined') {
+//     chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+//                             'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
+//         console.log('Local time variables have been created and stored.');
+//     });
+// }
 
 // Get offset between current time and midnight.
 let now = new Date();
@@ -21,15 +41,11 @@ let week = result[1];
 let month = now.getMonth();
 let year = now.getFullYear();
 
-/**
- * Set extension installation time data.
- */
+// Set extension installation time data.
 chrome.storage.local.set({'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day});
 
-/**
- * At midnight every day, reset day/week/month/year variables
- * as appropriate for updating various time variables.
- */
+ // At midnight every day, reset day/week/month/year variables
+ // as appropriate for updating various time variables.
 setTimeout( () => {
     setInterval( () => {
         let d = new Date();
@@ -58,9 +74,7 @@ setTimeout( () => {
     }, 1000 * 60 * 60 * 24);
 }, msUntilMidnight);
 
-/**
- * Add stopwatch to webpage.
- */
+// Add stopwatch to webpage.
 let stopwatchBlock = () => {
     // Get location in HTML to insert the stopwatch icon.
     let redditHome = document.querySelector('[aria-label="Home"]');
@@ -107,20 +121,16 @@ let stopwatchBlock = () => {
 
 stopwatchBlock();
 
-/**
- * Check for when a page is loaded. If it is Reddit, update time variables.
- */
+// Check for when a page is loaded. If it is Reddit, update time variables.
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
         updateTimes();
     }
 };
 
-/**
- * Check for tab changes. If tab URL is Reddit, update time statistics.
- */
+// Check for tab changes. If tab URL is Reddit, update time statistics.
 document.addEventListener('visibilitychange', () => {
-    if (document.visibility === 'visible' && document.hasFocus()) {
+    if (document.visibilityState === 'visible') {
         updateTimes();
     }
     else {
