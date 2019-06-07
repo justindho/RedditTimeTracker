@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Initialize (current and previous) time variables in local storage.
  */
@@ -20,7 +22,12 @@ let month = now.getMonth();
 let year = now.getFullYear();
 
 /**
- * At midnight every day, reset day/week/month/year variables 
+ * Set extension installation time data.
+ */
+chrome.storage.local.set({'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day});
+
+/**
+ * At midnight every day, reset day/week/month/year variables
  * as appropriate for updating various time variables.
  */
 setTimeout( () => {
@@ -28,12 +35,12 @@ setTimeout( () => {
         let d = new Date();
         let todaySec = chrome.storage.local.get('todaySec');
         chrome.storage.local.set({'prevDaySec': todaySec});
-        chrome.storage.local.set({'todaySec': 0});        
+        chrome.storage.local.set({'todaySec': 0});
         let weekResult = getWeekNumber(new Date());
         if (weekResult[1] != week) {
             let weekSec = chrome.storage.local.get('weekSec');
             chrome.storage.local.set({'prevWeekSec': weekSec});
-            chrome.storage.local.set({'weekSec': 0});         
+            chrome.storage.local.set({'weekSec': 0});
             week = weekResult[1];
         }
         if (d.getMonth() != month) {
@@ -54,13 +61,13 @@ setTimeout( () => {
 /**
  * Add stopwatch to webpage.
  */
-let stopwatchBlock = () => {    
+let stopwatchBlock = () => {
     // Get location in HTML to insert the stopwatch icon.
     let redditHome = document.querySelector('[aria-label="Home"]');
     let stopwatchDiv = document.getElementById('stopwatchDiv');
 
     // If the stopwatch div is undefined, create it.
-    if (!stopwatchDiv) {        
+    if (!stopwatchDiv) {
         stopwatchDiv = document.createElement('div');
         stopwatchDiv.id = 'reddit-time-tracker';
         stopwatchDiv.innerHTML = '<div id="reddit-time-tracker__body"> \
@@ -72,11 +79,11 @@ let stopwatchBlock = () => {
                                       <div id="reddit-time-tracker__popup-body"> \
                                         <div id="reddit-time-tracker__name">Reddit Time Tracker</div> \
                                         <ul id="reddit-time-tracker__stats">\
-                                          <li>Today: <span id="todayTime"></span></li> \
-                                          <li>This week: <span id="weekTime"></span></li> \
-                                          <li>This month: <span id="monthTime"></span></li> \
-                                          <li>This year: <span id="yearTime"></span></li> \
-                                          <li>All time: <span id="alltimeTime"></span></li> \
+                                          <li id="liDay" class="list-inline">Today: <span id="todayTime"></span></li> \
+                                          <li id="liWeek" class="list-inline">This week: <span id="weekTime"></span></li> \
+                                          <li id="liMonth" class="list-inline">This month: <span id="monthTime"></span></li> \
+                                          <li id="liYear" class="list-inline">This year: <span id="yearTime"></span></li> \
+                                          <li id="liAllTime" class="list-inline">All time: <span id="alltimeTime"></span></li> \
                                         </ul><br> \
                                         <div id="reddit-time-tracker__links"> \
                                           <a href="https://github.com/justindho/RedditTimeTracker">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
@@ -88,10 +95,10 @@ let stopwatchBlock = () => {
         // Create stopwatch logo.
         let stopwatchLogo = document.createElement('img');
         let stopwatchURL = chrome.runtime.getURL('img/stopwatch.svg');
-        stopwatchLogo.src = stopwatchURL;        
+        stopwatchLogo.src = stopwatchURL;
 
         // Insert stopwatch div after Reddit logo.
-        redditHome.parentNode.insertBefore(stopwatchDiv, redditHome.nextSibling);        
+        redditHome.parentNode.insertBefore(stopwatchDiv, redditHome.nextSibling);
     }
     else {
         console.log('STOPWATCHBLOCK ALREADY EXISTS');
@@ -149,11 +156,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
+/**
+ * Update time variables.
+ */
+let timer;
 function updateTimes() {
-    timer = setInterval( () => {        
+    timer = setInterval( () => {
         try {
-            chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {    
+            // Update current time period's time variables.
+            chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
                 document.getElementById('reddit-time-tracker__time').innerHTML = displayTime(result.todaySec);
                 document.getElementById('todayTime').innerHTML = displayTime(result.todaySec++);
                 document.getElementById('weekTime').innerHTML = displayTime(result.weekSec++);
@@ -161,18 +173,29 @@ function updateTimes() {
                 document.getElementById('yearTime').innerHTML = displayTime(result.yearSec++);
                 document.getElementById('alltimeTime').innerHTML = displayTime(result.alltimeSec++);
                 console.log('todaySec: ' + result.todaySec);
-                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec})
+                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec});
+
+                // Compare current time period's time variables to last time period's.
+                // If user didn't browse Reddit in the previous time period, don't display any increase/decrease.
+                renderTrends();
+                // if (result.prevDaySec == 0) document.getElementById('dayDiff').innerHTML = "";
+                // else document.getElementById('dayDiff').innerHTML = Math.floor(result.todaySec / result.prevDaySec) + "% &nbsp;";
+                // if (result.prevWeekSec == 0) document.getElementById('weekDiff').innerHTML = "";
+                // else document.getElementById('weekDiff').innerHTML = Math.floor(result.weekSec / result.prevWeekSec) + "% &nbsp;";
+                // if (result.prevDaySec == 0) document.getElementById('monthDiff').innerHTML = "";
+                // else document.getElementById('monthDiff').innerHTML = Math.floor(result.monthSec / result.prevMonthSec) + "% &nbsp;";
+                // if (result.prevDaySec == 0) document.getElementById('yearDiff').innerHTML = "";
+                // else document.getElementById('yearDiff').innerHTML = Math.floor(result.yearSec / result.prevYearSec) + "% &nbsp;";
             });
         }
         catch(err) {
             console.log(err.message);
-        }            
+        }
     }, 1000);
 }
 
 /**
  * Clear timer if it's been created already.
- * @param {} d 
  */
 function clearTimer() {
     if (typeof timer == 'undefined') {
@@ -184,12 +207,53 @@ function clearTimer() {
 }
 
 /**
+ * Render time trends.
+ */
+function renderTrends() {
+    let todaySec = chrome.storage.local.get('todaySec');
+    let weekSec = chrome.storage.local.get('weekSec');
+    let monthSec = chrome.storage.local.get('monthSec');
+    let yearSec = chrome.storage.local.get('yearSec');
+    let prevDaySec = chrome.storage.local.get('prevDaySec');
+    let prevWeekSec = chrome.storage.local.get('prevWeekSec');
+    let prevMonthSec = chrome.storage.local.get('prevMonthSec');
+    let prevYearSec = chrome.storage.local.get('prevYearSec');
+    document.getElementById('liDay').innerHTML += addDiffTrend(todaySec, prevDaySec, 'dayDiff');
+    document.getElementById('liWeek').innerHTML += addDiffTrend(weekSec, prevWeekSec, 'weekDiff');
+    document.getElementById('liMonth').innerHTML += addDiffTrend(monthSec, prevMonthSec, 'monthDiff');
+    document.getElementById('liYear').innerHTML += addDiffTrend(yearSec, prevYearSec, 'yearDiff');
+    // document.getElementById('reddit-time-tracker__stats').innerHTML = '\
+    //     <li class="list-inline">Today: <span id="todayTime"></span>' + addDiffTrend(todaySec, prevDaySec, dayDiff) + '</li> \
+    //     <li class="list-inline">This week: <span id="weekTime"></span>' + addDiffTrend(weekSec, prevWeekSec, weekDiff) + '</li> \
+    //     <li class="list-inline">This month: <span id="monthTime"></span>' + addDiffTrend(monthSec, prevMonthSec, monthDiff) + '</li> \
+    //     <li class="list-inline">This year: <span id="yearTime"></span>' + addDiffTrend(yearSec, prevYearSec, yearDiff) + '</li> \
+    //     <li class="list-inline">All time: <span id="alltimeTime"></span></li>';
+}
+
+/**
+ * Insert trend indicator (red for increase in time, green for decrease).
+ * 
+ * @param {number} currTime the current time value for the current time period 
+ * @param {number} prevTime the previous time value for hte previous time period
+ * @param {String} id the id to give to the newly created span element
+ */
+function addDiffTrend(currTime, prevTime, id) {
+    if (prevTime == 0) return "";
+    let percentChange = Math.round((currTime - prevTime) / prevTime * 100);  
+    if (percentChange >= 0) {      
+        return '<span class="trendGreen" id="' + id + '">' + percentChange + '%</span>';
+    } else {
+        return '<span class="trendRed" id="' + id + '">' + percentChange + '%</span>';
+    }
+}
+
+/**
  * Get week number.
- * 
+ *
  * src: https://stackoverflow.com/questions/6117814/get-week-of-year-in-javascript-like-in-php
- *   
+ *
  * For a given date, get the ISO week number
- * 
+ *
  * Based on information at:
  *
  *    http://www.merlyn.demon.co.uk/weekcalc.htm#WNR
