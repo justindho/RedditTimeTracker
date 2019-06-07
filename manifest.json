@@ -1,32 +1,29 @@
 {
     "name": "RedditTimeTracker",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Track how much time you're spending on Reddit.",
     "manifest_version": 2,
     "author": "Justin Ho",
     "background": {
-        "persistent": true,
-        "scripts": [
-            "js/background.js"
-        ]
+        "scripts": ["js/background.js"],
+        "persistent": false
     },
     "browser_action": {
         "default_title": "RedditTimeTracker",
-        "default_icon": "img/icon.png",
-        "default_popup": "templates/popup.html"
+        "default_icon": "img/icon.png"        
     },
     "content_scripts": [
         {
             "matches": [
-                "http://*.reddit.com/*",
-                "https://*.reddit.com/*"
+                "*://*.reddit.com/*"                
             ],
             "js": [
                 "js/app.js"                
             ],
             "css": [
                 "css/app.css"
-            ]
+            ],
+            "run_at": "document_end"
         }
     ],
     "icons": {
@@ -41,14 +38,12 @@
     },
     "permissions": [
         "activeTab",
-        "https://www.reddit.com/",
-        "https://old.reddit.com/",
+        "*://*.reddit.com/*",
         "storage", 
         "tabs"
     ],
-    "web_accessible_resources": [
-        "css/popup.css",
-        "css/dom.css",
-        "img/*.png"
+    "web_accessible_resources": [        
+        "css/app.css",
+        "img/*.svg"
     ]
 }

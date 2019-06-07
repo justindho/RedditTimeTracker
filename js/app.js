@@ -5,23 +5,13 @@
  * initialize (current and previous) time variables in local storage.
  */
 // console.log(typeof chrome.storage.local.get('todaySec'));
-try {
-    chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
-                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], () => {
-                                          console.log('Time variables already exist in local storage.');
-                                      });
-}
-catch {
-    chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
-                            'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
-        console.log('Local time variables have been created and stored.');
-    });
-}
-// if (typeof chrome.storage.local.get('todaySec') == 'undefined'
-//     && typeof chrome.storage.local.get('weekSec') == 'undefined'
-//     && typeof chrome.storage.local.get('monthSec') == 'undefined'
-//     && typeof chrome.storage.local.get('yearSec') == 'undefined'
-//     && typeof chrome.storage.local.get('alltimeSec') == 'undefined') {
+// try {
+//     chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+//                                       'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], () => {
+//                                           console.log('Time variables already exist in local storage.');
+//                                       });
+// }
+// catch {
 //     chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
 //                             'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0}, () => {
 //         console.log('Local time variables have been created and stored.');
@@ -42,7 +32,7 @@ let month = now.getMonth();
 let year = now.getFullYear();
 
 // Set extension installation time data.
-chrome.storage.local.set({'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day});
+// chrome.storage.local.set({'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day});
 
  // At midnight every day, reset day/week/month/year variables
  // as appropriate for updating various time variables.
@@ -121,12 +111,15 @@ let stopwatchBlock = () => {
 
 stopwatchBlock();
 
-// Check for when a page is loaded. If it is Reddit, update time variables.
+// Start updating time variables when page is loaded.
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
         updateTimes();
     }
 };
+// document.addEventListener('DOMContentLoaded', () => {
+//     updateTimes();
+// })
 
 // Check for tab changes. If tab URL is Reddit, update time statistics.
 document.addEventListener('visibilitychange', () => {

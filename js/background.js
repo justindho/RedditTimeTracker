@@ -1,159 +1,30 @@
 /**
- * Initialize global time variables.
- */
-let todaySec = 0;
-let weekSec = 0;
-let monthSec = 0;
-let yearSec = 0;
-let alltimeSec = 0;
-
-/**
  * Initialize time variables in storage.
  */
 chrome.runtime.onInstalled.addListener( () => {    
-    chrome.storage.sync.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
-        todaySec = 0;
-        weekSec = 0;
-        monthSec = 0;
-        yearSec = 0;
-        alltimeSec = 0;
+    chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0}, () => {
         console.log('Time variables have been created and stored.');
     });
 });
 
-// Get offset between current time and midnight.
+// Set extension installation time data.
 let now = new Date();
-let then = new Date(now);
-then.setHours(24, 0, 0, 0);
-let msUntilMidnight = (then - now);
-
-// Set current date/time variables for comparison at midnight each day.
-day = now.getDay();
-let result = getWeekNumber(new Date());
-week = result[1];
-month = now.getMonth();
-year = now.getFullYear();
-
-/**
- * At midnight every day, reset day/week/month/year variables 
- * as appropriate for updating various time variables.
- */
-setTimeout( () => {
-    setInterval( () => {
-        let d = new Date();
-        todaySec = 0;
-        let weekResult = getWeekNumber(new Date());
-        if (weekResult[1] != week) {
-            weekSec = 0;            
-            week = weekResult[1];
-        }
-        if (d.getMonth() != month) {
-            monthSec = 0;
-            month = d.getMonth();
-        }
-        if (d.getFullYear() != year) {
-            yearSec = 0;
-            year++;
-        }
-    }, 1000 * 60 * 60 * 24);
-}, msUntilMidnight);
-
-/**
- * Listen for active tab changes. If active tab's URL is Reddit, continually
- * update time variables. Otherwise, if there was a previous timer running,
- * stop the timer.
- */
-chrome.tabs.onActivated.addListener( () => {
-    console.log('Checking for Reddit tab...');
-    // Get URL of current tab.
-    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
-        let url = tabs[0].url;
-
-        console.log('URL = ' + url);
-
-        // If tab URL is Reddit, start logging times.
-        if (url.indexOf('.reddit') != -1) {            
-            updateTimes();            
-        }
-        else {
-            if (typeof timer !== 'undefined') {
-                clearInterval(timer);
-            }
-            else {
-                console.log('Timer is not defined');
-            }            
-        }
-    });
-
+let day = now.getDay();
+let result = getWeekNumber(now);
+let week = result[1];
+let month = now.getMonth();
+let year = now.getFullYear();
+chrome.storage.local.set({'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day}, () => {
+    console.log('Installation variables stored.');
 });
-
-/**
- * Listen for current tab's URL changes. If the tab's new URL 
- * is Reddit, continually update time variables in storage.
- */
-chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-    // Once new page is done loading, check if URL is Reddit.
-    if (changeInfo.status === 'complete') {
-        if (tab.url.indexOf('.reddit') != -1) {            
-            updateTimes();
-        }
-    }
-    else {
-        if (typeof timer !== 'undefined') {
-            clearInterval(timer);
-        }
-        else {
-            console.log('Timer is not defined');
-        }        
-    }
-});
-
-/**
- * Update time variables in storage.
- * 
- * Chrome storage only allows for writing to storage a maximum of 
- * once every 2 seconds.
- * https://developer.chrome.com/apps/storage#type-StorageArea
- */
-function updateTimes() {    
-    // Get time variables from storage.
-    chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec'], (result) => {
-        todaySec = result.todaySec;
-        weekSec = result.weekSec;
-        monthSec = result.monthSec;
-        yearSec = result.yearSec;
-        alltimeSec = result.alltimeSec;        
-
-        // Continuously update time variables while the active tab's URL is Reddit.
-        timer = setInterval( () => {
-            console.log("Logging Reddit time...");
-
-            todaySec += 5;
-            weekSec += 5;
-            monthSec += 5;
-            yearSec += 5;
-            alltimeSec += 5;
-
-            // Update time variables in storage every second.
-            chrome.storage.sync.set({'todaySec': todaySec, 'weekSec': weekSec, 'monthSec': monthSec, 'yearSec': yearSec, 'alltimeSec': alltimeSec}, () => {
-                console.log('TIME VARIABLES HAVE BEEN UPDATED.');
-                console.log('todaySec = ' + todaySec);
-                console.log('weekSec = ' + weekSec);
-                console.log('monthSec = ' + monthSec);
-                console.log('yearSec = ' + yearSec);
-                console.log('alltimeSec = ' + alltimeSec);
-            });
-        }, 5000);
-    });
-};
 
 /**
  * Get week number.
- * 
+ *
  * src: https://stackoverflow.com/questions/6117814/get-week-of-year-in-javascript-like-in-php
- *   
+ *
  * For a given date, get the ISO week number
- * 
+ *
  * Based on information at:
  *
  *    http://www.merlyn.demon.co.uk/weekcalc.htm#WNR
@@ -181,25 +52,3 @@ function getWeekNumber(d) {
     // Return array of year and week number
     return [d.getUTCFullYear(), weekNo];
 }
-
-/**
- * When port to popup.js is connected, send time variables 
- * via message.
- */
-chrome.runtime.onConnect.addListener( (port) => {
-    console.log('Connected .....');
-    console.assert(port.name == 'updatePopupHTML');
-    port.onMessage.addListener( (msg) => {
-        if (msg.msg == 'Request time variables.') {            
-            port.postMessage({
-                todaySec: todaySec,
-                weekSec: weekSec,
-                monthSec: monthSec,
-                yearSec: yearSec,
-                alltimeSec: alltimeSec,
-            });
-
-            console.log('Posted time variables to popup.js');
-        }
-    });
-});
