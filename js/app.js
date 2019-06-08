@@ -50,54 +50,41 @@ stopwatchBlock();
 // Start updating time variables when page is loaded.
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
-        updateTimes();
+        if (document.hasFocus()) {
+            console.log('has focus');
+            updateTimes();
+        }
+        else {
+            console.log('no focus');
+            clearTimer();        
+        }
     }
 };
-// document.addEventListener('DOMContentLoaded', () => {
-//     updateTimes();
-// })
 
 // Check for tab changes. If tab URL is Reddit, update time statistics.
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        updateTimes();
-    }
-    else {
-        clearTimer();
-    }
-});
+// document.addEventListener('visibilitychange', () => {
+//     if (document.visibilityState === 'visible') {
+//         updateTimes();
+//     }
+//     else {
+//         clearTimer();
+//     }
+// });
 
 /**
  * If Reddit tab is about to lose focus, stop updating time variables.
+ * If Reddit tab regains focus, start updating time variables again.
  */
-// window.addEventListener('onblur', () => {
-//     console.log('LOST FOCUS!!');
-//     clearTimer();
-// });
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('body').addEventListener('blur', () => {
-        console.log('LOST FOCUS!!');
-        clearTimer();
-    });
-});
+window.onblur = () => {
+    console.log('LOST FOCUS!!');
+    clearTimer();
+}
+window.onfocus = () => {
+    console.log('REGAINED FOCUS!!');
+    updateTimes();
+}
 
-/**
- * If Reddit tab is about to get focus, start updating time variables.
- */
-// window.addEventListener('onfocus', () => {
-//     console.log('REGAINED FOCUS');
-//     updateTimes();
-// });
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('body').addEventListener('focus', () => {
-        console.log('REGAINED FOCUS!!');
-        updateTimes();
-    });
-});
-
-/**
- * Update time variables.
- */
+// Update time variables.
 let timer;
 function updateTimes() {
     timer = setInterval( () => {
@@ -133,9 +120,7 @@ function updateTimes() {
     }, 1000);
 }
 
-/**
- * Clear timer if it's been created already.
- */
+// Clear timer if it's been created already.
 function clearTimer() {
     if (typeof timer == 'undefined') {
         console.log('TIMER IS UNDEFINED');
@@ -145,9 +130,7 @@ function clearTimer() {
     }
 }
 
-/**
- * Render time trends.
- */
+// Render time trends.
 function renderTrends() {
     let todaySec = chrome.storage.local.get('todaySec');
     let weekSec = chrome.storage.local.get('weekSec');
