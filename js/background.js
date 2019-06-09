@@ -2,7 +2,7 @@
 let now, day, week, month, year;
 
 // Set up environment on extension installation.
-chrome.runtime.onInstalled.addListener( () => {
+chrome.runtime.onInstalled.addListener( function installationSetUp() {
     console.log('Starting initializations ...') ;
     // Set extension installation time data.
     now = new Date();
@@ -18,20 +18,11 @@ chrome.runtime.onInstalled.addListener( () => {
     let msUntilMidnight = (then - now);
     let minUntilMidnight = Math.floor(msUntilMidnight / (1000 * 60));
 
-    // Initialize local storage time and installation date variables if they don't already exist.
-    // This is needed to prevent resetting of local storage variables upon chrome browser update.
-    let todaySec, weekSec, monthSec, yearSec, alltimeSec;
-    chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
-                                'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
-        if (todaySec == 'undefined' || weekSec == 'undefined' || monthSec == 'undefined' || yearSec == 'undefined' || alltimeSec == 'undefined') {
-            chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+    // Initialize local storage time and installation date variables.
+    chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
                 'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day}, () => {
-                console.log('Time variables and installation variables have been created and stored.');
-            });
-        } else {
-            console.log('Time variables already exist');
-        }
-    });    
+        console.log('Time variables and installation variables have been created and stored.');
+    });
 
     // Create alarm to tell background script to refresh the appropriate time variables at midnight each day.
     console.log('Creating alarm ...');
@@ -40,6 +31,9 @@ chrome.runtime.onInstalled.addListener( () => {
     // For testing & debugging purposes.
     // chrome.alarms.create('resetTimeVars', {delayInMinutes: 1, periodInMinutes: 1});
     console.log('Alarm created');
+
+    // Remove onInstalled listener to prevent resetting of time variables upon browser update.
+    chrome.runtime.onInstalled.removeListener(installationSetUp);
 });
 
 // When resetTimeVars alarm is triggered, reset time variables as appropriate.
