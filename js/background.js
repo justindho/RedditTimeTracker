@@ -1,12 +1,16 @@
+// Declare global time variables.
+let now, day, week, month, year;
+
 // Set up environment on extension installation.
-chrome.runtime.onInstalled.addListener( () => {    
+chrome.runtime.onInstalled.addListener( () => {
+    console.log('Starting initializations ...') ;
     // Set extension installation time data.
-    let now = new Date();
-    let day = now.getDay();
+    now = new Date();
+    day = now.getDay();
     let result = getWeekNumber(now);
-    let week = result[1];
-    let month = now.getMonth() + 1;
-    let year = now.getFullYear();
+    week = result[1];
+    month = now.getMonth() + 1;
+    year = now.getFullYear();
 
     // Get offset between current time and the next midnight.
     let then = new Date(now);
@@ -15,123 +19,58 @@ chrome.runtime.onInstalled.addListener( () => {
     let minUntilMidnight = Math.floor(msUntilMidnight / (1000 * 60));
 
     // Initialize local storage time and installation date variables if they don't already exist.
-    let todaySec = chrome.storage.local.get('todaySec');
-    let weekSec = chrome.storage.local.get('weekSec');
-    let monthSec = chrome.storage.local.get('monthSec');
-    let yearSec = chrome.storage.local.get('yearSec');
-    let alltimeSec = chrome.storage.local.get('alltimeSec');
-    if (todaySec == 'undefined' || weekSec == 'undefined' || monthSec == 'undefined' || yearSec == 'undefined' || alltimeSec == 'undefined') {
-        chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
-            'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day}, () => {
-            console.log('Time variables and installation variables have been created and stored.');
-        });
-    }
-    
+    // This is needed to prevent resetting of local storage variables upon chrome browser update.
+    let todaySec, weekSec, monthSec, yearSec, alltimeSec;
+    chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+                                'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
+        if (todaySec == 'undefined' || weekSec == 'undefined' || monthSec == 'undefined' || yearSec == 'undefined' || alltimeSec == 'undefined') {
+            chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+                'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day}, () => {
+                console.log('Time variables and installation variables have been created and stored.');
+            });
+        } else {
+            console.log('Time variables already exist');
+        }
+    });    
+
     // Create alarm to tell background script to refresh the appropriate time variables at midnight each day.
+    console.log('Creating alarm ...');
     chrome.alarms.create('resetTimeVars', {delayInMinutes: minUntilMidnight, periodInMinutes: 60 * 24});
+
+    // For testing & debugging purposes.
+    // chrome.alarms.create('resetTimeVars', {delayInMinutes: 1, periodInMinutes: 1});
+    console.log('Alarm created');
 });
 
-// Event: alarm raised
+// When resetTimeVars alarm is triggered, reset time variables as appropriate.
 chrome.alarms.onAlarm.addListener( (alarm) => {
     switch (alarm.name) {
         case 'resetTimeVars':
             // Reset the appropriate time variables at midnight of each day
+            console.log('RESETTING TIME VARS!!!');
             let d = new Date();
-            let todaySec = chrome.storage.local.get('todaySec');
-            chrome.storage.local.set({'prevDaySec': todaySec, 'todaySec': 0});        
-            let weekResult = getWeekNumber(new Date());
-            if (weekResult[1] != week) {
-                let weekSec = chrome.storage.local.get('weekSec');
-                chrome.storage.local.set({'prevWeekSec': weekSec});
-                chrome.storage.local.set({'weekSec': 0});
-                week = weekResult[1];
-            }
-            if (d.getMonth() != month) {
-                let monthSec = chrome.storage.local.get('monthSec');
-                chrome.storage.local.set({'prevMonthSec': monthSec});
-                chrome.storage.local.set({'monthSec': 0});
-                month = d.getMonth();
-            }
-            if (d.getFullYear() != year) {
-                let yearSec = chrome.storage.local.get('yearSec');
-                chrome.storagel.local.set({'prevYearSec': yearSec});
-                chrome.storage.local.set({'yearSec': 0});
-                year++;
-            }            
+            chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+                'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
+                chrome.storage.local.set({'prevDaySec': result.todaySec, 'todaySec': 0});
+                let weekResult = getWeekNumber(new Date());
+                if (weekResult[1] != week) {
+                    chrome.storage.local.set({'prevWeekSec': result.weekSec, 'weekSec': 0});
+                    week = weekResult[1];
+                }
+                if (d.getMonth() != month) {
+                    chrome.storage.local.set({'prevMonthSec': result.monthSec, 'monthSec': 0});
+                    month = d.getMonth();
+                }
+                if (d.getFullYear() != year) {
+                    chrome.storagel.local.set({'prevYearSec': result.yearSec, 'yearSec': 0});
+                    year++;
+                }
+            });
             break;
         default:
             break;
     }
 });
-
-// Create a daily alarm to update time variables at midnight each day
-// function _updateRepeatingAlarms() {
-//     // Add daily alarm to reset time varaibles at midnight each day
-//     chrome.alarms.get('resetTimeVars', (alarm) => {
-//         if (!alarm) {
-//             chrome.alarms.create('resetTimeVars', {
-//                 delayInMinutes: minUntilMidnight,
-//                 periodInMinutes: 60 * 24
-//             });
-//         }
-//     });
-// }
-
- // At midnight every day, reset day/week/month/year variables
- // as appropriate for updating various time variables.
-
-//  setTimeout( () => {
-//     setInterval( () => {
-//         let d = new Date();
-//         let todaySec = chrome.storage.local.get('todaySec');
-//         chrome.storage.local.set({'prevDaySec': todaySec, 'todaySec': 0});        
-//         let weekResult = getWeekNumber(new Date());
-//         if (weekResult[1] != week) {
-//             let weekSec = chrome.storage.local.get('weekSec');
-//             chrome.storage.local.set({'prevWeekSec': weekSec});
-//             chrome.storage.local.set({'weekSec': 0});
-//             week = weekResult[1];
-//         }
-//         if (d.getMonth() != month) {
-//             let monthSec = chrome.storage.local.get('monthSec');
-//             chrome.storage.local.set({'prevMonthSec': monthSec});
-//             chrome.storage.local.set({'monthSec': 0});
-//             month = d.getMonth();
-//         }
-//         if (d.getFullYear() != year) {
-//             let yearSec = chrome.storage.local.get('yearSec');
-//             chrome.storagel.local.set({'prevYearSec': yearSec});
-//             chrome.storage.local.set({'yearSec': 0});
-//             year++;
-//         }
-//     }, 1000 * 60 * 60 * 24);
-// }, msUntilMidnight);
-// setTimeout( () => {
-//     setInterval( () => {
-//         let d = new Date();
-//         let todaySec = chrome.storage.local.get('todaySec');
-//         chrome.storage.local.set({'prevDaySec': todaySec, 'todaySec': 0});        
-//         let weekResult = getWeekNumber(new Date());
-//         if (weekResult[1] != week) {
-//             let weekSec = chrome.storage.local.get('weekSec');
-//             chrome.storage.local.set({'prevWeekSec': weekSec});
-//             chrome.storage.local.set({'weekSec': 0});
-//             week = weekResult[1];
-//         }
-//         if (d.getMonth() != month) {
-//             let monthSec = chrome.storage.local.get('monthSec');
-//             chrome.storage.local.set({'prevMonthSec': monthSec});
-//             chrome.storage.local.set({'monthSec': 0});
-//             month = d.getMonth();
-//         }
-//         if (d.getFullYear() != year) {
-//             let yearSec = chrome.storage.local.get('yearSec');
-//             chrome.storagel.local.set({'prevYearSec': yearSec});
-//             chrome.storage.local.set({'yearSec': 0});
-//             year++;
-//         }
-//     }, 1000 * 60 * 60 * 24);
-// }, msUntilMidnight);
 
 /**
  * Get week number.
