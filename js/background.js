@@ -9,7 +9,7 @@ chrome.runtime.onInstalled.addListener( function installationSetUp() {
     day = now.getDay();
     let result = getWeekNumber(now);
     week = result[1];
-    month = now.getMonth() + 1;
+    month = now.getMonth();
     year = now.getFullYear();
 
     // Get offset between current time and the next midnight.
@@ -20,6 +20,7 @@ chrome.runtime.onInstalled.addListener( function installationSetUp() {
 
     // Initialize local storage time and installation date variables.
     chrome.storage.local.set({'todaySec': 0, 'weekSec': 0, 'monthSec': 0, 'yearSec': 0, 'alltimeSec': 0,
+                'prevDaySec': 0, 'prevWeekSec': 0, 'prevMonthSec': 0, 'prevYearSec': 0,
                 'yearInstall': year, 'monthInstall': month, 'weekInstall': week, 'dayInstall': day}, () => {
         console.log('Time variables and installation variables have been created and stored.');
     });
@@ -56,7 +57,7 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
                     month = d.getMonth();
                 }
                 if (d.getFullYear() != year) {
-                    chrome.storagel.local.set({'prevYearSec': result.yearSec, 'yearSec': 0});
+                    chrome.storage.local.set({'prevYearSec': result.yearSec, 'yearSec': 0});
                     year++;
                 }
             });
