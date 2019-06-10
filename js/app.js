@@ -1,5 +1,8 @@
 "use strict";
 
+// Refresh rate (ms).
+let refreshRate = 1000;
+
 // Add stopwatch to webpage.
 let stopwatchBlock = () => {
     // Get location in HTML to insert the stopwatch icon.
@@ -19,11 +22,11 @@ let stopwatchBlock = () => {
                                       <div id="reddit-time-tracker__popup-body"> \
                                         <div id="reddit-time-tracker__name">Reddit Time Tracker</div> \
                                         <ul id="reddit-time-tracker__stats">\
-                                          <li id="liDay" class="list-inline">Today: <span id="todayTime"></span></li> \
-                                          <li id="liWeek" class="list-inline">This week: <span id="weekTime"></span></li> \
-                                          <li id="liMonth" class="list-inline">This month: <span id="monthTime"></span></li> \
-                                          <li id="liYear" class="list-inline">This year: <span id="yearTime"></span></li> \
-                                          <li id="liAllTime" class="list-inline">All time: <span id="alltimeTime"></span></li> \
+                                          <li class="statline"><span id="todayTime"></span><span id="dayTrend"></span></li> \
+                                          <li class="statline"><span id="weekTime"></span><span id="weekTrend"></span></li> \
+                                          <li class="statline"><span id="monthTime"></span><span id="monthTrend"></span></li> \
+                                          <li class="statline"><span id="yearTime"></span><span id="yearTrend"></span></li> \
+                                          <li class="statline"><span id="alltimeTime"></span></li> \
                                         </ul><br> \
                                         <div id="reddit-time-tracker__links"> \
                                           <a href="https://github.com/justindho/RedditTimeTracker">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
@@ -56,7 +59,7 @@ document.onreadystatechange = () => {
         }
         else {
             console.log('no focus');
-            clearTimer();        
+            clearTimer();
         }
     }
 };
@@ -93,31 +96,27 @@ function updateTimes() {
             chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
                                       'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
                 document.getElementById('reddit-time-tracker__time').innerHTML = displayTime(result.todaySec);
-                document.getElementById('todayTime').innerHTML = displayTime(result.todaySec++);
-                document.getElementById('weekTime').innerHTML = displayTime(result.weekSec++);
-                document.getElementById('monthTime').innerHTML = displayTime(result.monthSec++);
-                document.getElementById('yearTime').innerHTML = displayTime(result.yearSec++);
-                document.getElementById('alltimeTime').innerHTML = displayTime(result.alltimeSec++);
-                console.log('todaySec: ' + result.todaySec);
-                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec});
+                document.getElementById('todayTime').innerHTML = 'Today: ' + displayTime(result.todaySec++);
+                document.getElementById('weekTime').innerHTML = 'This week: ' + displayTime(result.weekSec++);
+                document.getElementById('monthTime').innerHTML = 'This month: ' + displayTime(result.monthSec++);
+                document.getElementById('yearTime').innerHTML = 'This year: ' + displayTime(result.yearSec++);
+                document.getElementById('alltimeTime').innerHTML = 'All time: ' + displayTime(result.alltimeSec++);
 
                 // Compare current time period's time variables to last time period's.
                 // If user didn't browse Reddit in the previous time period, don't display any increase/decrease.
-                renderTrends();
-                // if (result.prevDaySec == 0) document.getElementById('dayDiff').innerHTML = "";
-                // else document.getElementById('dayDiff').innerHTML = Math.floor(result.todaySec / result.prevDaySec) + "% &nbsp;";
-                // if (result.prevWeekSec == 0) document.getElementById('weekDiff').innerHTML = "";
-                // else document.getElementById('weekDiff').innerHTML = Math.floor(result.weekSec / result.prevWeekSec) + "% &nbsp;";
-                // if (result.prevDaySec == 0) document.getElementById('monthDiff').innerHTML = "";
-                // else document.getElementById('monthDiff').innerHTML = Math.floor(result.monthSec / result.prevMonthSec) + "% &nbsp;";
-                // if (result.prevDaySec == 0) document.getElementById('yearDiff').innerHTML = "";
-                // else document.getElementById('yearDiff').innerHTML = Math.floor(result.yearSec / result.prevYearSec) + "% &nbsp;";
+                console.log('prevDaySec: ' + result.prevDaySec);
+                addDiffTrend(result.todaySec, result.prevDaySec, 'dayTrend');
+                addDiffTrend(result.weekSec, result.prevWeekSec, 'weekTrend');
+                addDiffTrend(result.monthSec, result.prevMonthSec, 'monthTrend');
+                addDiffTrend(result.yearSec, result.prevYearSec, 'yearTrend');
+                console.log('todaySec: ' + result.todaySec);
+                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec});
             });
         }
         catch(err) {
             console.log(err.message);
         }
-    }, 1000);
+    }, refreshRate);
 }
 
 // Clear timer if it's been created already.
@@ -130,42 +129,26 @@ function clearTimer() {
     }
 }
 
-// Render time trends.
-function renderTrends() {
-    let todaySec = chrome.storage.local.get('todaySec');
-    let weekSec = chrome.storage.local.get('weekSec');
-    let monthSec = chrome.storage.local.get('monthSec');
-    let yearSec = chrome.storage.local.get('yearSec');
-    let prevDaySec = chrome.storage.local.get('prevDaySec');
-    let prevWeekSec = chrome.storage.local.get('prevWeekSec');
-    let prevMonthSec = chrome.storage.local.get('prevMonthSec');
-    let prevYearSec = chrome.storage.local.get('prevYearSec');
-    document.getElementById('liDay').innerHTML += addDiffTrend(todaySec, prevDaySec, 'dayDiff');
-    document.getElementById('liWeek').innerHTML += addDiffTrend(weekSec, prevWeekSec, 'weekDiff');
-    document.getElementById('liMonth').innerHTML += addDiffTrend(monthSec, prevMonthSec, 'monthDiff');
-    document.getElementById('liYear').innerHTML += addDiffTrend(yearSec, prevYearSec, 'yearDiff');
-    // document.getElementById('reddit-time-tracker__stats').innerHTML = '\
-    //     <li class="list-inline">Today: <span id="todayTime"></span>' + addDiffTrend(todaySec, prevDaySec, dayDiff) + '</li> \
-    //     <li class="list-inline">This week: <span id="weekTime"></span>' + addDiffTrend(weekSec, prevWeekSec, weekDiff) + '</li> \
-    //     <li class="list-inline">This month: <span id="monthTime"></span>' + addDiffTrend(monthSec, prevMonthSec, monthDiff) + '</li> \
-    //     <li class="list-inline">This year: <span id="yearTime"></span>' + addDiffTrend(yearSec, prevYearSec, yearDiff) + '</li> \
-    //     <li class="list-inline">All time: <span id="alltimeTime"></span></li>';
-}
-
 /**
  * Insert trend indicator (red for increase in time, green for decrease).
- * 
- * @param {number} currTime the current time value for the current time period 
+ *
+ * @param {number} currTime the current time value for the current time period
  * @param {number} prevTime the previous time value for hte previous time period
  * @param {String} id the id to give to the newly created span element
  */
 function addDiffTrend(currTime, prevTime, id) {
-    if (prevTime == 0) return "";
-    let percentChange = Math.round((currTime - prevTime) / prevTime * 100);  
-    if (percentChange >= 0) {      
-        return '<span class="trendGreen" id="' + id + '">' + percentChange + '%</span>';
-    } else {
-        return '<span class="trendRed" id="' + id + '">' + percentChange + '%</span>';
+    let span = document.getElementById(id);    
+    if (prevTime == 0 || prevTime == 'undefined') span.innerHTML = '';    
+    else {
+        let percentChange = Math.round((currTime - prevTime) / prevTime * 100);        
+        if (percentChange >= 0) {
+            span.classList.add('trendRed');            
+            span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/redArrow.svg" alt="Red Arrow">'
+        }
+        else {
+            span.classList.add('trendGreen');            
+            span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/greenArrow.svg" alt="Green Arrow">'
+        }        
     }
 }
 

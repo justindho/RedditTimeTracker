@@ -1,13 +1,3 @@
-.diff {
-    
-}
-
-.list-inline {
-    display: flex;
-    /* justify-content: space-between; */
-    text-align: justify;
-}
-
 #reddit-time-tracker {
     position: relative;
     height: 100%;
@@ -23,8 +13,7 @@
 #reddit-time-tracker__links a {
     font-size: 12px;
     color: black;
-    text-decoration: underline;
-    /* white-space: nowrap; */
+    text-decoration: underline;    
 }
 
 #reddit-time-tracker__logo {
@@ -32,16 +21,16 @@
     background-repeat: no-repeat;
     background-size: contain;
     width: 30px !important;
-    height: 30px;    
+    height: 30px;
     display: inline-block;
-    opacity: 0.5;
-    /* background-color: blue; */
+    opacity: 0.5;        
     vertical-align: center;
 }
 
 #reddit-time-tracker__logotime {
     display: inline-flex;
     flex-wrap: nowrap;
+    align-items: center;
 }
 
 #reddit-time-tracker__name {
@@ -53,19 +42,19 @@
 }
 
 #reddit-time-tracker__popup {
-    /* display: none; */
-    display: block;
+    display: none;
+    /* display: block; */
     width: 350px;
     height: 300px;
     position: absolute;
-    background-color: #FFF;    
-    border: groove;    
-    border-radius: 5px; 
+    background-color: #FFF;
+    border: groove;
+    border-radius: 5px;
     margin: 10px;
 }
 
 #reddit-time-tracker__popup-body {
-    padding: 20px 20px;    
+    padding: 20px 20px;
 }
 
 #reddit-time-tracker__stats {
@@ -77,11 +66,9 @@
 }
 
 #reddit-time-tracker__stats li {
-    display: block;
     list-style-type: none;
     color: black !important;
     margin-top: 20px !important;
-    /* background-color: red; */
 }
 
 #reddit-time-tracker__stats li li {
@@ -89,29 +76,28 @@
 }
 
 #reddit-time-tracker:hover #reddit-time-tracker__popup {
-    display: block;   
+    display: block;
 }
 
-#reddit-time-tracker__time {
-    /* display: inline-block; */
-    display: inline-flex;
+#reddit-time-tracker__time {    
+    display: inline-flex;    
     align-items: center;
-    opacity: 0.75;
-    /* background-color: red; */
+    opacity: 0.75;    
     line-height: 18px;
     font-size: 16px;
     padding-top: 2px;
-    /* padding: 2px; */
-    /* vertical-align: middle; */
-    /* text-align: center; */
+}
+
+.statline {
+    display: flex;
+    flex: 0 1 auto;
+    justify-content: space-between;    
 }
 
 .trendGreen {    
-    /* background-image: url("chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/greenArrow.svg") !important; */
     color: green;
 }
 
-.trendRed {
-    /* background-image: url("chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/redArrow.svg") !important; */
+.trendRed {    
     color: red;
 }
