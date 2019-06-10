@@ -10,7 +10,7 @@
     },
     "browser_action": {
         "default_title": "RedditTimeTracker",
-        "default_icon": "img/icon.png"        
+        "default_icon": "img/icon_reddit.png"        
     },
     "content_scripts": [
         {
@@ -27,10 +27,10 @@
         }
     ],
     "icons": {
-        "16": "img/icon.png",
-        "32": "img/icon.png",
-        "64": "img/icon.png",
-        "128": "img/icon.png"
+        "16": "img/icon_reddit.png",
+        "32": "img/icon_reddit.png",
+        "64": "img/icon_reddit.png",
+        "128": "img/icon_reddit.png"
     },
     "options_ui": {
         "page": "templates/options.html",
@@ -38,6 +38,7 @@
     },
     "permissions": [
         "activeTab",
+        "alarms",
         "*://*.reddit.com/*",
         "storage", 
         "tabs"
