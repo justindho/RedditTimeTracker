@@ -29,8 +29,8 @@ let stopwatchBlock = () => {
                                           <li class="statline"><span id="alltimeTime"></span></li> \
                                         </ul><br> \
                                         <div id="reddit-time-tracker__links"> \
-                                          <a href="https://github.com/justindho/RedditTimeTracker">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
-                                          <a href="https://docs.google.com/forms/d/1LQsPc7fTO3wF6NUFioRmzLk-X9QysKo-W2WqF0D6ZE4/edit">Provide Feedback</a>\
+                                          <a href="https://github.com/justindho/RedditTimeTracker" target="_blank">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
+                                          <a href="https://docs.google.com/forms/d/1LQsPc7fTO3wF6NUFioRmzLk-X9QysKo-W2WqF0D6ZE4/edit" target="_blank">Provide Feedback</a>\
                                         </div> \
                                       </div>\
                                     </div> \
@@ -43,8 +43,6 @@ let stopwatchBlock = () => {
         console.log('STOPWATCHBLOCK ALREADY EXISTS');
     }
 };
-
-stopwatchBlock();
 
 /**
  * Update the stopwatch logo when night mode is toggled to maintain a good contrast for visibility.
@@ -75,7 +73,7 @@ const backgroundColorObserver = new MutationObserver(subscriber);
 // Observe target.
 backgroundColorObserver.observe(target, config);
 
-
+// Callback function to update stopwatch logo based on Reddit's night mode on/off.
 let updateStopwatchLogo = () => {
     // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.    
     let classElements = document.getElementsByClassName('wb4c1a-0');  // Reddit class dictating page background color
@@ -97,6 +95,8 @@ let updateStopwatchLogo = () => {
     document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';            
 }
 
+// Create stopwatch block and stopwatch logo on startup.
+stopwatchBlock();
 updateStopwatchLogo();
 
 // Start updating time variables when page is loaded.
