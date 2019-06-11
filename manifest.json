@@ -32,16 +32,10 @@
         "64": "img/icon_reddit.png",
         "128": "img/icon_reddit.png"
     },
-    "options_ui": {
-        "page": "templates/options.html",
-        "chrome_style": true
-    },
-    "permissions": [
-        "activeTab",
+    "permissions": [        
         "alarms",
         "*://*.reddit.com/*",
-        "storage", 
-        "tabs"
+        "storage"        
     ],
     "web_accessible_resources": [        
         "css/app.css",
