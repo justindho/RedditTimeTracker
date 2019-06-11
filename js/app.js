@@ -35,10 +35,6 @@ let stopwatchBlock = () => {
                                       </div>\
                                     </div> \
                                   </div>';
-        // Create stopwatch logo.
-        let stopwatchLogo = document.createElement('img');
-        let stopwatchURL = chrome.runtime.getURL('img/stopwatch.svg');
-        stopwatchLogo.src = stopwatchURL;
 
         // Insert stopwatch div after Reddit logo.
         redditHome.parentNode.insertBefore(stopwatchDiv, redditHome.nextSibling);
@@ -49,6 +45,59 @@ let stopwatchBlock = () => {
 };
 
 stopwatchBlock();
+
+/**
+ * Update the stopwatch logo when night mode is toggled to maintain a good contrast for visibility.
+ * If night mode is on, logo will turn white/gray. If night mode is off, logo will turn black.
+ */
+const target = document.getElementsByClassName('wb4c1a-0')[0];  // Reddit class dictating page background color
+
+// Configure object.
+const config = { attributes: true };
+
+// Subscriber to observe for changes.
+function subscriber(mutations) {
+    console.log(mutations);
+    console.log(mutations.constructor); // Array
+
+    mutations.forEach( mutation => {
+        console.log(mutation);
+        console.log(mutation.constructor);  // MutationRecord
+        if (mutation.attributeName == 'class') {            
+            updateStopwatchLogo();
+        }
+    });
+}
+
+// Create observer.
+const backgroundColorObserver = new MutationObserver(subscriber);
+
+// Observe target.
+backgroundColorObserver.observe(target, config);
+
+
+let updateStopwatchLogo = () => {
+    // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.    
+    let classElements = document.getElementsByClassName('wb4c1a-0');  // Reddit class dictating page background color
+    let color = window.getComputedStyle(classElements[0], null).getPropertyValue('background-color');
+    console.log('color = ' + color);
+
+    // Get class's RGB values and the background's perceived brightness.
+    // http://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
+    let rgb = color.split("(")[1].split(")")[0].split(",");
+    console.log('r = ' + rgb[0] + ', g = ' + rgb[1] + ', b = ' + rgb[2]);
+    let perceivedBrightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+    console.log('perceivedBrightness = ' + perceivedBrightness);
+
+    // Set stopwatch logo based on perceived brightness.
+    let stopwatchLogoDiv = document.createElement('svg');
+    let stopwatchURL = (perceivedBrightness > 125) ? chrome.runtime.getURL('img/stopwatch.svg') : chrome.runtime.getURL('img/stopwatch_white.svg');    
+    console.log('stopwatchURL = ' + stopwatchURL);
+    stopwatchLogoDiv.src = stopwatchURL;
+    document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';            
+}
+
+updateStopwatchLogo();
 
 // Start updating time variables when page is loaded.
 document.onreadystatechange = () => {
@@ -63,16 +112,6 @@ document.onreadystatechange = () => {
         }
     }
 };
-
-// Check for tab changes. If tab URL is Reddit, update time statistics.
-// document.addEventListener('visibilitychange', () => {
-//     if (document.visibilityState === 'visible') {
-//         updateTimes();
-//     }
-//     else {
-//         clearTimer();
-//     }
-// });
 
 /**
  * If Reddit tab is about to lose focus, stop updating time variables.
@@ -137,18 +176,18 @@ function clearTimer() {
  * @param {String} id the id to give to the newly created span element
  */
 function addDiffTrend(currTime, prevTime, id) {
-    let span = document.getElementById(id);    
-    if (prevTime == 0 || prevTime == 'undefined') span.innerHTML = '';    
+    let span = document.getElementById(id);
+    if (prevTime == 0 || prevTime == 'undefined') span.innerHTML = '';
     else {
-        let percentChange = Math.round((currTime - prevTime) / prevTime * 100);        
+        let percentChange = Math.round((currTime - prevTime) / prevTime * 100);
         if (percentChange >= 0) {
-            span.classList.add('trendRed');            
-            span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/redArrow.svg" alt="Red Arrow">'
+            span.classList.add('trendRed');
+            span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/redArrow.svg" alt="Red Arrow">'
         }
         else {
-            span.classList.add('trendGreen');            
+            span.classList.add('trendGreen');
             span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/greenArrow.svg" alt="Green Arrow">'
-        }        
+        }
     }
 }
 
