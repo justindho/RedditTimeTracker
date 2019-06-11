@@ -66,8 +66,8 @@
 }
 
 #reddit-time-tracker__stats li {
-    list-style-type: none;
     color: black !important;
+    list-style-type: none;    
     margin-top: 20px !important;
 }
 
@@ -79,13 +79,14 @@
     display: block;
 }
 
-#reddit-time-tracker__time {    
-    display: inline-flex;    
+#reddit-time-tracker__time {        
     align-items: center;
-    opacity: 0.75;    
-    line-height: 18px;
     font-size: 16px;
+    line-height: 18px;
+    opacity: 0.75; 
+    overflow: hidden;
     padding-top: 2px;
+    white-space: nowrap;        
 }
 
 .statline {
@@ -95,9 +96,9 @@
 }
 
 .trendGreen {    
-    color: green;
+    color: #00FF00;
 }
 
 .trendRed {    
-    color: red;
+    color: #FF0000;
 }
