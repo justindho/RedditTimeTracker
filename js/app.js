@@ -1,13 +1,96 @@
 "use strict";
 
-// Refresh rate (ms).
-let refreshRate = 1000;
+// Global variables.
+let refreshRate = 1000; // ms
+let timer;  // timer to update time variables per refreshRate
+
+/**
+ * Update the stopwatch logo when night mode is toggled to maintain a good contrast for visibility.
+ * If night mode is on, logo will turn white/gray. If night mode is off, logo will turn black.
+ */
+const target = document.getElementsByClassName('wb4c1a-0')[0];  // Reddit class dictating page background color
+
+// Configure object.
+const config = { attributes: true };
+
+// Subscriber to observe for changes.
+function subscriber(mutations) {
+    // console.log(mutations);
+    // console.log(mutations.constructor); // Array
+
+    mutations.forEach( mutation => {
+        // console.log(mutation);
+        // console.log(mutation.constructor);  // MutationRecord
+        if (mutation.attributeName == 'class') {            
+            updateStopwatchLogo();
+        }
+    });
+}
+
+// Create observer.
+const backgroundColorObserver = new MutationObserver(subscriber);
+
+// Observe target.
+backgroundColorObserver.observe(target, config);
+
+// Create stopwatch block and stopwatch logo on startup.
+createStopwatchBlock();
+updateStopwatchLogo();
+
+// Callback function to update stopwatch logo based on Reddit's night mode on/off.
+function updateStopwatchLogo() {
+    // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.    
+    let classElements = document.getElementsByClassName('wb4c1a-0');  // Reddit class dictating page background color
+    let color = window.getComputedStyle(classElements[0], null).getPropertyValue('background-color');
+    // console.log('color = ' + color);
+
+    // Get class's RGB values and the background's perceived brightness.
+    // http://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
+    let rgb = color.split("(")[1].split(")")[0].split(",");
+    // console.log('r = ' + rgb[0] + ', g = ' + rgb[1] + ', b = ' + rgb[2]);
+    let perceivedBrightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+    // console.log('perceivedBrightness = ' + perceivedBrightness);
+
+    // Set stopwatch logo based on perceived brightness.
+    let stopwatchLogoDiv = document.createElement('svg');
+    let stopwatchURL = (perceivedBrightness > 125) ? chrome.runtime.getURL('img/stopwatch.svg') : chrome.runtime.getURL('img/stopwatch_white.svg');    
+    // console.log('stopwatchURL = ' + stopwatchURL);
+    stopwatchLogoDiv.src = stopwatchURL;
+    document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';            
+}
+
+// Start updating time variables when page is loaded.
+document.onreadystatechange = () => {
+    if (document.readyState === 'complete') {
+        if (document.hasFocus()) {
+            // console.log('has focus');
+            updateTimes();
+        }
+        else {
+            // console.log('no focus');
+            clearTimer();
+        }
+    }
+};
+
+/**
+ * If Reddit tab is about to lose focus, stop updating time variables.
+ * If Reddit tab regains focus, start updating time variables again.
+ */
+window.onblur = () => {
+    console.log('LOST FOCUS!!');
+    clearTimer();
+}
+window.onfocus = () => {
+    console.log('REGAINED FOCUS!!');
+    updateTimes();
+}
 
 // Add stopwatch to webpage.
-let stopwatchBlock = () => {
+function createStopwatchBlock() {
     // Get location in HTML to insert the stopwatch icon.
     let redditHome = document.querySelector('[aria-label="Home"]');
-    let stopwatchDiv = document.getElementById('stopwatchDiv');
+    let stopwatchDiv = document.getElementById('reddit-time-tracker');
 
     // If the stopwatch div is undefined, create it.
     if (!stopwatchDiv) {
@@ -30,7 +113,7 @@ let stopwatchBlock = () => {
                                         </ul><br> \
                                         <div id="reddit-time-tracker__links"> \
                                           <a href="https://github.com/justindho/RedditTimeTracker" target="_blank">Source Code</a> &nbsp;&nbsp;&nbsp;&nbsp;\
-                                          <a href="https://docs.google.com/forms/d/1LQsPc7fTO3wF6NUFioRmzLk-X9QysKo-W2WqF0D6ZE4/edit" target="_blank">Provide Feedback</a>\
+                                          <a href="https://docs.google.com/forms/d/e/1FAIpQLSc80074GQNbizyBq_l7mD_IS4a5JtLd7C0oqNekT3C3VOgSUQ/viewform" target="_blank">Provide Feedback</a>\
                                         </div> \
                                       </div>\
                                     </div> \
@@ -44,95 +127,12 @@ let stopwatchBlock = () => {
     }
 };
 
-/**
- * Update the stopwatch logo when night mode is toggled to maintain a good contrast for visibility.
- * If night mode is on, logo will turn white/gray. If night mode is off, logo will turn black.
- */
-const target = document.getElementsByClassName('wb4c1a-0')[0];  // Reddit class dictating page background color
-
-// Configure object.
-const config = { attributes: true };
-
-// Subscriber to observe for changes.
-function subscriber(mutations) {
-    console.log(mutations);
-    console.log(mutations.constructor); // Array
-
-    mutations.forEach( mutation => {
-        console.log(mutation);
-        console.log(mutation.constructor);  // MutationRecord
-        if (mutation.attributeName == 'class') {            
-            updateStopwatchLogo();
-        }
-    });
-}
-
-// Create observer.
-const backgroundColorObserver = new MutationObserver(subscriber);
-
-// Observe target.
-backgroundColorObserver.observe(target, config);
-
-// Callback function to update stopwatch logo based on Reddit's night mode on/off.
-let updateStopwatchLogo = () => {
-    // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.    
-    let classElements = document.getElementsByClassName('wb4c1a-0');  // Reddit class dictating page background color
-    let color = window.getComputedStyle(classElements[0], null).getPropertyValue('background-color');
-    console.log('color = ' + color);
-
-    // Get class's RGB values and the background's perceived brightness.
-    // http://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
-    let rgb = color.split("(")[1].split(")")[0].split(",");
-    console.log('r = ' + rgb[0] + ', g = ' + rgb[1] + ', b = ' + rgb[2]);
-    let perceivedBrightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-    console.log('perceivedBrightness = ' + perceivedBrightness);
-
-    // Set stopwatch logo based on perceived brightness.
-    let stopwatchLogoDiv = document.createElement('svg');
-    let stopwatchURL = (perceivedBrightness > 125) ? chrome.runtime.getURL('img/stopwatch.svg') : chrome.runtime.getURL('img/stopwatch_white.svg');    
-    console.log('stopwatchURL = ' + stopwatchURL);
-    stopwatchLogoDiv.src = stopwatchURL;
-    document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';            
-}
-
-// Create stopwatch block and stopwatch logo on startup.
-stopwatchBlock();
-updateStopwatchLogo();
-
-// Start updating time variables when page is loaded.
-document.onreadystatechange = () => {
-    if (document.readyState === 'complete') {
-        if (document.hasFocus()) {
-            console.log('has focus');
-            updateTimes();
-        }
-        else {
-            console.log('no focus');
-            clearTimer();
-        }
-    }
-};
-
-/**
- * If Reddit tab is about to lose focus, stop updating time variables.
- * If Reddit tab regains focus, start updating time variables again.
- */
-window.onblur = () => {
-    console.log('LOST FOCUS!!');
-    clearTimer();
-}
-window.onfocus = () => {
-    console.log('REGAINED FOCUS!!');
-    updateTimes();
-}
-
 // Update time variables.
-let timer;
 function updateTimes() {
     timer = setInterval( () => {
         try {
             // Update current time period's time variables.
-            chrome.storage.local.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+            chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
                                       'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
                 document.getElementById('reddit-time-tracker__time').innerHTML = displayTime(result.todaySec);
                 document.getElementById('todayTime').innerHTML = 'Today: ' + displayTime(result.todaySec++);
@@ -143,13 +143,14 @@ function updateTimes() {
 
                 // Compare current time period's time variables to last time period's.
                 // If user didn't browse Reddit in the previous time period, don't display any increase/decrease.
-                console.log('prevDaySec: ' + result.prevDaySec);
+                // console.log('prevDaySec: ' + result.prevDaySec);
+                // console.log('prevWeekSec: ' + result.prevWeekSec);
                 addDiffTrend(result.todaySec, result.prevDaySec, 'dayTrend');
                 addDiffTrend(result.weekSec, result.prevWeekSec, 'weekTrend');
                 addDiffTrend(result.monthSec, result.prevMonthSec, 'monthTrend');
                 addDiffTrend(result.yearSec, result.prevYearSec, 'yearTrend');
                 console.log('todaySec: ' + result.todaySec);
-                chrome.storage.local.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec});
+                chrome.storage.sync.set({'todaySec': result.todaySec, 'weekSec': result.weekSec, 'monthSec': result.monthSec, 'yearSec': result.yearSec, 'alltimeSec': result.alltimeSec});
             });
         }
         catch(err) {
@@ -160,7 +161,7 @@ function updateTimes() {
 
 // Clear timer if it's been created already.
 function clearTimer() {
-    if (typeof timer == 'undefined') {
+    if (typeof timer == undefined) {
         console.log('TIMER IS UNDEFINED');
     }
     else {
@@ -177,16 +178,22 @@ function clearTimer() {
  */
 function addDiffTrend(currTime, prevTime, id) {
     let span = document.getElementById(id);
-    if (prevTime == 0 || prevTime == 'undefined') span.innerHTML = '';
+    if (prevTime == 0 || prevTime == undefined) span.innerHTML = '';
     else {
+        // console.log('Inside else statement of addDiffTrend.');
+        // console.log('typeof prevTime = ' + typeof prevTime);
         let percentChange = Math.round((currTime - prevTime) / prevTime * 100);
         if (percentChange >= 0) {
             span.classList.add('trendRed');
-            span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/redArrow.svg" alt="Red Arrow">'
+            let imgURL = chrome.runtime.getURL('img/redArrow.svg');
+            span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Red Arrow">';
+            // span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://__MSG_@@extension_id__/img/redArrow.svg" alt="Red Arrow">';
         }
         else {
             span.classList.add('trendGreen');
-            span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://bbibllckhhjeebilllcglnmlaplcklld/img/greenArrow.svg" alt="Green Arrow">'
+            let imgURL = chrome.runtime.getURL('img/greenArrow.svg');
+            span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Green Arrow">';
+            // span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://__MSG_@@extension_id__/img/greenArrow.svg" alt="Green Arrow">';
         }
     }
 }
