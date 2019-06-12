@@ -2,7 +2,7 @@
 let now, day, week, month, year;
 
 // Set up environment on extension installation.
-chrome.runtime.onInstalled.addListener( function installationSetUp() {
+let installationSetUp = chrome.runtime.onInstalled.addListener( () => {
     console.log('Starting initializations ...') ;
     // Set extension installation time data.
     now = new Date();
@@ -48,15 +48,15 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
                 'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
                 chrome.storage.local.set({'prevDaySec': result.todaySec, 'todaySec': 0});
                 let weekResult = getWeekNumber(new Date());
-                if (weekResult[1] != week) {
+                if (weekResult[1] != result.week) {
                     chrome.storage.local.set({'prevWeekSec': result.weekSec, 'weekSec': 0});
                     week = weekResult[1];
                 }
-                if (d.getMonth() != month) {
+                if (d.getMonth() != result.month) {
                     chrome.storage.local.set({'prevMonthSec': result.monthSec, 'monthSec': 0});
                     month = d.getMonth();
                 }
-                if (d.getFullYear() != year) {
+                if (d.getFullYear() != result.year) {
                     chrome.storage.local.set({'prevYearSec': result.yearSec, 'yearSec': 0});
                     year++;
                 }
