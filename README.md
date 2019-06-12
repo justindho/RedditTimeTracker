@@ -11,7 +11,7 @@ Note about data usage/storage: If the user has Chrome sync turned on for their G
 ![](/chrome_store_pics/nightmode-off-ex1.png?raw=true)
 
 ## Installation
-Install the extension at the [Chrome Extension Store](https://chrome.google.com/webstore/detail/reddit-time-tracker-monit/kjihonoaammpoioflmhjghkeibmkmmlh/related?hl=en&authuser=1)!
+Install the extension at the [Chrome Extension Store](https://chrome.google.com/webstore/detail/reddit-time-tracker-monit/kjihonoaammpoioflmhjghkeibmkmmlh?hl=en)!
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
