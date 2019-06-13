@@ -1,0 +1,42 @@
+#form-save {
+    text-align: center;
+}
+
+#header h1 {
+    background-color: #FF5700;
+    padding: 10px;
+}
+
+@keyframes fadeInOut {
+    0% {
+        visibility: hidden;
+        opacity: 0;
+    }
+    50% {
+        visibility: visible;
+        opacity: 1;
+    }
+    100% {
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+#save-status {    
+    animation-name: fadeInOut;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
+    /* background-color: #FF5700; */
+    font-size: 16px;
+    margin: 0 auto;
+    text-align: center;
+    width: 50%;
+}
+
+#section-minutes-allowed {
+    text-align: center;
+}
+
+.shadow {
+    box-shadow: 0px 3px 5px 0px #ccc;
+}
