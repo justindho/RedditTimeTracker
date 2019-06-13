@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(
         let now = new Date();
         let currDay = now.getDay();
         let currResult = getWeekNumber(now);
-        let currWeek = result[1];
+        let currWeek = currResult[1];
         let currMonth = now.getMonth();
         let currYear = now.getFullYear();
 
@@ -29,9 +29,9 @@ chrome.runtime.onInstalled.addListener(
             if (typeof result.yearSec == 'undefined') chrome.storage.sync.set({'yearSec': 0});
             if (typeof result.alltimeSec == 'undefined') chrome.storage.sync.set({'alltimeSec': 0});
 
-            // Store current time period's details in Chrome sync storage.
-            chrome.storage.sync.set({'currDay': currDay, 'currWeek': currWeek, 'currMonth': currMonth, 'currYear': currYear}, () => {
-                console.log('Current time period time vars set');
+            // Store current time period's details in Chrome sync storage. Also set time limit flag.
+            chrome.storage.sync.set({'currDay': currDay, 'currWeek': currWeek, 'currMonth': currMonth, 'currYear': currYear, 'limitMet': false}, () => {
+                console.log('Current time period time vars and time limit flag set');
             });
         });
 
@@ -52,8 +52,8 @@ chrome.runtime.onInstalled.addListener(
 chrome.alarms.onAlarm.addListener( (alarm) => {
     switch (alarm.name) {
         case 'resetTimeVars':
-            // Reset the appropriate time variables at midnight of each day
-            console.log('RESETTING TIME VARS!!!');
+            // Reset the appropriate time variables at midnight of each day and reset time limit flag.
+            console.log('RESETTING TIME VARS AND TIME LIMIT FLAG!!!');
             let today = new Date();
             chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
                 'currDay', 'currWeek', 'currMonth', 'currYear',
@@ -74,6 +74,7 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
                     chrome.storage.sync.set({'prevYearSec': result.yearSec, 'currYear': today.getFullYear(), 'yearSec': 0});
                 }
             });
+            chrome.storage.sync.set({'limitMet': false});
             break;
         default:
             break;
@@ -115,5 +116,5 @@ function getWeekNumber(day) {
     // Calculate full weeks to nearest Thursday
     let weekNo = Math.ceil((( (day - yearStart) / 86400000) + 1) / 7);
     // Return array of year and week number
-    return [d.getUTCFullYear(), weekNo];
+    return [day.getUTCFullYear(), weekNo];
 }

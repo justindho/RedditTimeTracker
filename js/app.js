@@ -61,16 +61,25 @@ function updateStopwatchLogo() {
 
 // Start updating time variables when page is loaded.
 document.onreadystatechange = () => {
-    if (document.readyState === 'complete') {
-        if (document.hasFocus()) {
-            // console.log('has focus');
-            updateTimes();
+    chrome.storage.sync.get('limitMet', (result) => {
+        // If user has set time limit and limit has been met, block Reddit.
+        if (!typeof result.timeLimit === 'undefined') {
+            if (result.limitMet) {
+                console.log('Time limit met!!');
+                alert('Time limit met!!!');
+            }
         }
-        else {
-            // console.log('no focus');
-            clearTimer();
+        else if (document.readyState === 'complete') {
+            if (document.hasFocus()) {
+                console.log('has focus');
+                updateTimes();
+            }
+            else {
+                console.log('no focus');
+                clearTimer();
+            }
         }
-    }
+    });    
 };
 
 /**
@@ -130,10 +139,18 @@ function createStopwatchBlock() {
 // Update time variables.
 function updateTimes() {
     timer = setInterval( () => {
-        try {
-            // Update current time period's time variables.
-            chrome.storage.sync.get(['todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
-                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
+        try {                    
+            chrome.storage.sync.get(['limitMet', 'timeLimit', 'todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
+                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {                
+                // If user has time limit set and time limit has been set, update override flag and block Reddit.                                          
+                if (result.timeLimit && result.todaySec >= result.timeLimit) {
+                    console.log('Daily time limit has been met/exceeded.');
+                    chrome.storage.sync.set({'limitMet': true});
+                    clearTimer();
+                    throw "Browsing limit has been met for the day.";
+                }
+
+                // Update current time period's time variables.
                 document.getElementById('reddit-time-tracker__time').innerHTML = displayTime(result.todaySec);
                 document.getElementById('todayTime').innerHTML = 'Today: ' + displayTime(result.todaySec++);
                 document.getElementById('weekTime').innerHTML = 'This week: ' + displayTime(result.weekSec++);
@@ -219,18 +236,18 @@ function addDiffTrend(currTime, prevTime, id) {
  * e.g. 2014/12/29 is Monday in week  1 of 2015
  *      2012/1/1   is Sunday in week 52 of 2011
  */
-function getWeekNumber(d) {
+function getWeekNumber(day) {
     // Copy date so don't modify original
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    day = new Date(Date.UTC(day.getFullYear(), day.getMonth(), day.getDate()));
     // Set to nearest Thursday: current date + 4 - current day number
     // Make Sunday's day number 7
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    day.setUTCDate(day.getUTCDate() + 4 - (day.getUTCDay() || 7));
     // Get first day of year
-    let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0,1));
+    let yearStart = new Date(Date.UTC(day.getUTCFullYear(), 0, 1));
     // Calculate full weeks to nearest Thursday
-    let weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1) / 7);
+    let weekNo = Math.ceil((( (day - yearStart) / 86400000) + 1) / 7);
     // Return array of year and week number
-    return [d.getUTCFullYear(), weekNo];
+    return [day.getUTCFullYear(), weekNo];
 }
 
 /**
@@ -289,4 +306,10 @@ function displayTime(seconds) {
     else {
         return " 0 min";
     }
+}
+
+// Block Reddit
+function blockReddit() {
+    alert('Time is up!');
+    // document.getElementsByTagName('body').innerHTML = '<div>Daily browsing limit has been reached.</div><button class="btn btn-danger">Override</button>'
 }
