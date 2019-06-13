@@ -22,14 +22,28 @@
     }
 }
 
+.animate1 {
+    animation-name: fadeInOut;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
+}
+
+.animate2 {
+    animation-name: fadeInOut;
+    animation-duration: 5s;
+    animation-fill-mode: forwards;
+}
+
 #save-status {    
     animation-name: fadeInOut;
     animation-duration: 5s;
     animation-fill-mode: forwards;
+    /* animation-iteration-count: infinite; */
     /* background-color: #FF5700; */
     font-size: 16px;
     margin: 0 auto;
     text-align: center;
+    visibility: hidden;
     width: 50%;
 }
 

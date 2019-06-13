@@ -2,11 +2,21 @@
 function save_options(e) {
     let timeLimit = document.getElementById('duration').value;
     let savestatus = document.getElementById('save-status');
-    chrome.storage.sync.set({'timeLimit': timeLimit});
+    // savestatus.style.animationPlayState = 'paused';
 
-    // Fade save status in and out.        
+    chrome.storage.sync.set({'timeLimit': timeLimit});
+    console.log('animation play state (before): ' + savestatus.style.animationPlayState);
+
+    // Fade save status in and out.   
+    // savestatus.classList.add('animate1');
+    // setTimeout( () => {
+    //     savestatus.classList.remove('animate1');
+    // }, 5000);
+    // if (savestatus.className = 'animate1') savestatus.className = 'animate2';
+    // else savestatus.className = 'animate1';
     if (savestatus.style.animationPlayState === 'paused') savestatus.style.animationPlayState = 'running';
-        else savestatus.style.animationPlayState = 'paused';
+    else savestatus.style.animationPlayState = 'paused';    
+    console.log('animation play state (after): ' + savestatus.style.animationPlayState);
 
     e.preventDefault();
 }
@@ -22,7 +32,7 @@ function toggle_save() {
 }
 
 // Listen for user save action.
-document.getElementById('save-button').addEventListener('click', save_options);
+document.getElementById('save-button').addEventListener('click', save_options, false);
 // document.getElementById('form-save').addEventListener('submit', save_options);
 
 // Allow user to save options on hitting 'enter' in input field.
@@ -42,3 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
     savestatus.style.animationPlayState = 'paused';
 });
 
+function play() {
+    let savestatus = document.getElementById('save-status');
+    savestatus.className = '';
+    window.requestAnimationFrame( time => {
+        window.requestAnimationFrame( time => {
+            savestatus.className = 'animate';
+        })
+    }) 
+}
