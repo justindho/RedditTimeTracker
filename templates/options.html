@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Reddit Time Tracker: Options">
+        <meta name="author" content="Justin Ho">
+
+        <title>Reddit Time Tracker: Options</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->    
+        <link href="../css/options.css" rel="stylesheet">
+    </head>
+    <body>     
+        <!-- Header Strip -->
+        <section id="header">  
+            <div class="shadow">
+                <h1 align="center" id="pageTitle">Reddit Time Tracker: Options</h1>
+            </div>                                               
+        </section>
+
+        <!-- Focus Mode -->
+        <section id="section-minutes-allowed">
+            <br><br>
+            <h3>Daily Reddit Browsing Minutes Allowed</h3>
+            <hr>
+            <div class="container">
+                <div class="item">
+                    <form action="#">
+                        <span>Duration: <input id="duration" type="number" min="1" placeholder="30" autofocus> minutes</span>
+                    </form>
+                </div>      
+                <!-- <div class="item">                               
+                    <form action="#">        
+                        <p>Timer Sound: </p>            
+                        <select id="sounds-timer">
+                            <option value="None">None</option>
+                            <option value="Beats">Beats</option>
+                        </select>
+                    </form>
+                </div>  -->
+                <!-- <div class="item">
+                    <form action="#">
+                        <p>Upon completion:</p><br>
+                        <input type="checkbox" name="desktop-notification-checkbox">Show desktop notification<br>
+                        <input type="checkbox" name="new-tab-notification-checkbox">Show new tab notification
+                        <p>Play sound: </p>
+                        <select id="sounds-completion">
+                            http://soundbible.com/tags-alarm.html
+                            <option value="None">None</option>
+                            <option value="Watch Alarm">Watch Alarm</option>
+                            <option value="Old School Bell">Old School Bell</option>
+                        </select>
+                    </form>
+                </div> -->
+            </div>
+            <br>
+        </section>
+    
+        <!-- <nav class="navbar navbar-inverse navbar-expand-lg" style="background-color: #FF5700;">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <span>Options</span>
+                    </li>
+                </ul>
+            </div>
+        </nav> -->
+
+        <!-- Save user options -->
+        <form action="" id="form-save">
+            <button id="save-button" class="btn btn-primary" type="submit" disabled>Save Changes</button>
+        </form>
+        <div id="save-status" class="hidden alert alert-info"><strong>Your changes have been saved.</strong></div>
+
+        <script src="../js/options.js"></script>
+    </body>
+</html>
