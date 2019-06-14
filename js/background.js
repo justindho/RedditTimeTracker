@@ -63,11 +63,11 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
                 let weekResult = getWeekNumber(today);
                 if (weekResult[1] != result.currWeek) {
                     console.log('Resetting week time ...');
-                    chrome.storage.sync.set({'prevWeekSec': result.weekSec, 'currWeek': weekResult[1], 'weekSec': 0});                    
+                    chrome.storage.sync.set({'prevWeekSec': result.weekSec, 'currWeek': weekResult[1], 'weekSec': 0});
                 }
                 if (today.getMonth() != result.currMonth) {
                     console.log('Resetting month time ...');
-                    chrome.storage.sync.set({'prevMonthSec': result.monthSec, 'currMonth': today.getMonth(), 'monthSec': 0});                    
+                    chrome.storage.sync.set({'prevMonthSec': result.monthSec, 'currMonth': today.getMonth(), 'monthSec': 0});
                 }
                 if (today.getFullYear() != result.currYear) {
                     console.group('Resetting year time ...');
@@ -81,8 +81,46 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
     }
 });
 
-// Run installation setup.
-// installationSetUp();
+/**
+ * When port to app.js is connected, reroute requests to Reddit to blocking page.
+ */
+// Reroute to blocking page.
+// chrome.runtime.onConnect.addListener( (port) => {
+//     console.log('Connected .....');
+//     console.assert(port.name === 'rerouteToBlockingPage');
+//     port.onMessage.addListener( (msg, sender) => {
+//         if (msg.msg === 'Reroute to blocking page.') {            
+//             let url = chrome.runtime.getURL('../templates/blocking_page.html');
+//             console.log('new url = ' + url);
+//             chrome.tabs.update(sender.tab.id, {url: url});
+            
+//         }
+//     });
+// });
+
+// Reroute tab to the blocking page url upon request.
+chrome.runtime.onMessage.addListener( (request, sender) => {
+    chrome.tabs.update(sender.tab.id, {url: request.redirect});
+});
+
+
+
+// Listen for URL changes. If URL is Reddit and daily time limit is met, reroute to blocking page.
+// chrome.webRequest.onBeforeRequest.addListener( 
+//     function(details) { return {cancel: true}; },
+//     {urls: ['*://*.reddit.com/*']},
+//     ['blocking']
+// );
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Get week number.

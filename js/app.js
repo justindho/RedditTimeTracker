@@ -21,7 +21,7 @@ function subscriber(mutations) {
     mutations.forEach( mutation => {
         // console.log(mutation);
         // console.log(mutation.constructor);  // MutationRecord
-        if (mutation.attributeName == 'class') {            
+        if (mutation.attributeName == 'class') {
             updateStopwatchLogo();
         }
     });
@@ -39,7 +39,7 @@ updateStopwatchLogo();
 
 // Callback function to update stopwatch logo based on Reddit's night mode on/off.
 function updateStopwatchLogo() {
-    // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.    
+    // Get Reddit page background color. Make sure stopwatch logo has enough contrast with background.
     let classElements = document.getElementsByClassName('wb4c1a-0');  // Reddit class dictating page background color
     let color = window.getComputedStyle(classElements[0], null).getPropertyValue('background-color');
     // console.log('color = ' + color);
@@ -53,10 +53,10 @@ function updateStopwatchLogo() {
 
     // Set stopwatch logo based on perceived brightness.
     let stopwatchLogoDiv = document.createElement('svg');
-    let stopwatchURL = (perceivedBrightness > 125) ? chrome.runtime.getURL('img/stopwatch.svg') : chrome.runtime.getURL('img/stopwatch_white.svg');    
+    let stopwatchURL = (perceivedBrightness > 125) ? chrome.runtime.getURL('img/stopwatch.svg') : chrome.runtime.getURL('img/stopwatch_white.svg');
     // console.log('stopwatchURL = ' + stopwatchURL);
     stopwatchLogoDiv.src = stopwatchURL;
-    document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';            
+    document.getElementById('reddit-time-tracker__logo').style.backgroundImage = 'url(' + stopwatchURL + ')';
 }
 
 // Start updating time variables when page is loaded.
@@ -79,7 +79,7 @@ document.onreadystatechange = () => {
                 clearTimer();
             }
         }
-    });    
+    });
 };
 
 /**
@@ -139,15 +139,36 @@ function createStopwatchBlock() {
 // Update time variables.
 function updateTimes() {
     timer = setInterval( () => {
-        try {                    
+        try {
             chrome.storage.sync.get(['limitMet', 'timeLimit', 'todaySec', 'weekSec', 'monthSec', 'yearSec', 'alltimeSec',
-                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {                
-                // If user has time limit set and time limit has been set, update override flag and block Reddit.                                          
+                                      'prevDaySec', 'prevWeekSec', 'prevMonthSec', 'prevYearSec'], (result) => {
+                // If user has time limit set and time limit has been set, update override flag and block Reddit.
                 if (result.timeLimit && result.todaySec >= result.timeLimit) {
                     console.log('Daily time limit has been met/exceeded.');
                     chrome.storage.sync.set({'limitMet': true});
                     clearTimer();
-                    throw "Browsing limit has been met for the day.";
+
+                    // Send request to background script to reroute url.
+                    // chrome.runtime.sendMessage({redirect: 'https://www.google.com/'}, () => {
+                    let newURL = chrome.runtime.getURL('../templates/blocking_page.html');
+                    chrome.runtime.sendMessage({redirect: newURL}, () => {
+                        console.log('Request to reroute sent.');
+                    });
+
+                    /**
+                     * Send message to background script to reroute Reddit to blocking page.
+                     */
+                    // Create a port to talk to background script.
+                    // let port = chrome.runtime.connect({name: 'rerouteToBlockingPage'});
+                    // console.log('Port created to talk to background');
+
+                    // // Request background script to reroute requests for Reddit to blocking page.
+                    // port.sendMessage({msg: 'Reroute to blocking page.'});
+                    // // port.postMessage({msg: 'Reroute to blocking page.'});
+                    // console.log('Message sent from app to background');
+
+
+                    // throw "Browsing limit has been met for the day.";
                 }
 
                 // Update current time period's time variables.
@@ -197,20 +218,17 @@ function addDiffTrend(currTime, prevTime, id) {
     let span = document.getElementById(id);
     if (prevTime == 0 || prevTime == undefined) span.innerHTML = '';
     else {
-        // console.log('Inside else statement of addDiffTrend.');
         // console.log('typeof prevTime = ' + typeof prevTime);
         let percentChange = Math.round((currTime - prevTime) / prevTime * 100);
         if (percentChange >= 0) {
             span.classList.add('trendRed');
             let imgURL = chrome.runtime.getURL('img/redArrow.svg');
             span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Red Arrow">';
-            // span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://__MSG_@@extension_id__/img/redArrow.svg" alt="Red Arrow">';
         }
         else {
             span.classList.add('trendGreen');
             let imgURL = chrome.runtime.getURL('img/greenArrow.svg');
-            span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Green Arrow">';
-            // span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="chrome-extension://__MSG_@@extension_id__/img/greenArrow.svg" alt="Green Arrow">';
+            span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Green Arrow">';
         }
     }
 }
