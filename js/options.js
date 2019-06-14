@@ -1,14 +1,22 @@
+// Display current time limit in UI.
+chrome.storage.sync.get('timeLimit', (result) => {
+    if (result.timeLimit === null) document.getElementById('current-limit').innerHTML = 'no limit set';
+    else document.getElementById('current-limit').innerHTML = reuslt.timeLimit;
+});
+
 // Save user options to Chrome storage.
 document.getElementById('save-button').addEventListener('click', (e) => {
     let timeLimit = document.getElementById('duration').value * 60; // convert from min to sec
-    let savestatus = document.getElementById('save-status');
-    // savestatus.style.animationPlayState = 'paused';
+    let savestatus = document.getElementById('save-status');    
 
     chrome.storage.sync.set({'timeLimit': timeLimit}, () => {
         // Add Bootstrap class.
         savestatus.className = 'alert alert-success status-alerts';
         savestatus.innerHTML = 'Success! Your changes have been saved.';
         console.log('New timeLimit = ' + timeLimit + ' seconds');
+
+        // Update current time limit in UI.
+        document.getElementById('current-limit').innerHTML = Math.floor(timeLimit / 60);
     });
 
     // Flash status alert.    
@@ -47,7 +55,10 @@ document.getElementById('remove-button').addEventListener('click', (e) => {
         // Add Bootstrap class.
         removestatus.className = 'alert alert-info status-alerts';
         removestatus.innerHTML = 'Removed browsing time limit.';
-        console.log('Removed browsing time limit.');        
+        console.log('Removed browsing time limit.');   
+        
+        // Update current time limit in UI.
+        document.getElementById('current-limit').innerHTML = 'no limit set';
     });    
     // savestatus.style.animationPlayState = 'paused';
 
@@ -78,8 +89,7 @@ document.getElementById('remove-button').addEventListener('click', (e) => {
 
 // Allow user to save options on hitting 'enter' in input field.
 document.getElementById('duration').addEventListener('keyup', (e) => {
-    // Number 13 is the 'Enter' key on the keyboard
-    // if (e.keyCode === 13) document.getElementById('save-button').click();
+    // Number 13 is the 'Enter' key on the keyboard    
     if (e.keyCode === 13) {
         let timeLimit = document.getElementById('duration').value * 60; // convert from min to sec
         let savestatus = document.getElementById('save-status');        
@@ -111,12 +121,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // removestatus.style.animationPlayState = 'paused';
 });
 
-function play() {
-    let savestatus = document.getElementById('save-status');
-    savestatus.className = '';
-    window.requestAnimationFrame( time => {
-        window.requestAnimationFrame( time => {
-            savestatus.className = 'animate';
-        })
-    })
-}
+// Show current time limit.

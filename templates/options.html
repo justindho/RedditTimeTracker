@@ -22,15 +22,16 @@
             </div>                                               
         </section>
 
-        <!-- Focus Mode -->
+        <!-- Set Duration -->
         <section id="section-minutes-allowed">
             <br><br>
             <h3>Set a Daily Reddit Browsing Time Limit</h3>
             <hr>
             <div class="container">
                 <div class="item">
+                    <span>Current Limit: <span id="current-limit"></span></span>
                     <form action="#">
-                        <span>Duration: <input id="duration" type="number" min="1" placeholder="1" autofocus> minutes</span>
+                        <span>Set Duration: <input id="duration" type="number" min="1" placeholder="1" autofocus> minutes</span>
                     </form>
                 </div>      
                 <!-- <div class="item">                               
@@ -79,9 +80,7 @@
                 <button id="remove-button" class="btn btn-danger" type="submit">Remove Time Limit</button>
             </form>
         </div>
-        <br>
-        <!-- <div id="save-status" class="alert alert-success status-alerts"></div>
-        <div id="remove-status" class="alert alert-info status-alerts"></div> -->
+        <br>        
         <div id="save-status"></div>
         <div id="remove-status"></div>
 
