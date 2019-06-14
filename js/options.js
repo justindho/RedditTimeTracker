@@ -11,8 +11,7 @@ document.getElementById('save-button').addEventListener('click', (e) => {
         console.log('New timeLimit = ' + timeLimit + ' seconds');
     });
 
-    // Flash status alert.
-    // savestatus.innerHTML = 'Success! Your changes have been saved.';
+    // Flash status alert.    
     setTimeout( () => {
         savestatus.innerHTML = '';
         savestatus.className = '';
@@ -45,6 +44,7 @@ function toggle_save() {
 document.getElementById('remove-button').addEventListener('click', (e) => {
     let removestatus = document.getElementById('remove-status');    
     chrome.storage.sync.set({'timeLimit': null}, () => {
+        // Add Bootstrap class.
         removestatus.className = 'alert alert-info status-alerts';
         removestatus.innerHTML = 'Removed browsing time limit.';
         console.log('Removed browsing time limit.');        
@@ -76,40 +76,26 @@ document.getElementById('remove-button').addEventListener('click', (e) => {
     e.preventDefault();
 });
 
-// document.getElementById('remove-button').addEventListener('click', (e) => {
-//     chrome.storage.sync.get('timeLimit', (result) => {
-//         if (result.timeLimit) {
-//             chrome.storage.sync.set({'timeLimit': null}, () => {
-//                 console.log('Removed browsing time limit.');
-//             });
-//         }
-//         // document.getElementById('remove-status').innerHTML = '<strong>Reddit browsing time limit cleared.</strong>';
-
-//         // Flash status alert.
-//         let removestatus = document.getElementById('remove-status');
-//         removestatus.innerHTML = 'Time limit removed.';
-//         setTimeout( () => {
-//             removestatus.innerHTML = '';
-//         }, 5000);
-
-//         // ****************************************************************
-//         // CSS ANIMATION STUFF
-//         // Fade save status out.
-//         // let removestatus = document.getElementById('remove-status');
-//         // if (removestatus.style.animationPlayState === 'paused') removestatus.style.animationPlayState = 'running';
-//         // else removestatus.style.animationPlayState = 'paused';
-//         // ****************************************************************
-
-//         e.preventDefault();
-//     });
-// });
-
 // Allow user to save options on hitting 'enter' in input field.
 document.getElementById('duration').addEventListener('keyup', (e) => {
     // Number 13 is the 'Enter' key on the keyboard
     // if (e.keyCode === 13) document.getElementById('save-button').click();
     if (e.keyCode === 13) {
-        document.getElementById('save-status').innerHTML = '<strong>Your changes have been saved.</strong>'
+        let timeLimit = document.getElementById('duration').value * 60; // convert from min to sec
+        let savestatus = document.getElementById('save-status');        
+
+        chrome.storage.sync.set({'timeLimit': timeLimit}, () => {
+            // Add Bootstrap class.
+            savestatus.className = 'alert alert-success status-alerts';
+            savestatus.innerHTML = 'Success! Your changes have been saved.';
+            console.log('New timeLimit = ' + timeLimit + ' seconds');
+        });   
+        
+        // Flash status alert.    
+        setTimeout( () => {
+            savestatus.innerHTML = '';
+            savestatus.className = '';
+        }, 5000);
     }
 });
 
