@@ -148,11 +148,10 @@ function updateTimes() {
                     chrome.storage.sync.set({'limitMet': true});
                     clearTimer();
 
-                    // Send request to background script to reroute url.
-                    // chrome.runtime.sendMessage({redirect: 'https://www.google.com/'}, () => {
+                    // Send request to background script to reroute url.                    
                     let newURL = chrome.runtime.getURL('../templates/blocking_page.html');
                     chrome.runtime.sendMessage({redirect: newURL}, () => {
-                        console.log('Request to reroute sent.');
+                        console.log('Rerouting to blocking page ...');
                     });
 
                     /**

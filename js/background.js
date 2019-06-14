@@ -98,27 +98,10 @@ chrome.alarms.onAlarm.addListener( (alarm) => {
 //     });
 // });
 
-// Reroute tab to the blocking page url upon request.
+// Reroute url upon request.
 chrome.runtime.onMessage.addListener( (request, sender) => {
     chrome.tabs.update(sender.tab.id, {url: request.redirect});
 });
-
-
-
-// Listen for URL changes. If URL is Reddit and daily time limit is met, reroute to blocking page.
-// chrome.webRequest.onBeforeRequest.addListener( 
-//     function(details) { return {cancel: true}; },
-//     {urls: ['*://*.reddit.com/*']},
-//     ['blocking']
-// );
-
-
-
-
-
-
-
-
 
 
 
