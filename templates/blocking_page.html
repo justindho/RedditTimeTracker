@@ -1,12 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Reddit Time Tracker: Blocking Page">
+        <meta name="author" content="Justin Ho">
 
+        <title>Reddit Time Tracker: Blocking Page</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="../css/blocking_page.css" rel="stylesheet">
     </head>
     <body>
-        <div>
-            <span>Blocking Page</span>
-            <button>Override</button>
+        <!-- Update Daily Time Limit -->
+        <div class="container">
+            <div id="content">
+                <span id="time-is-up">Time is up!</span><br>
+                <span id="sad-message">No more Reddit until tomorrow. :(</span><br><br>
+                <button id="update-button" class="btn btn-dark" type="submit">Update Daily Time Limit</button>
+            </div>
         </div>
+
+        <script src="../js/blocking_page.js"></script>
     </body>
 </html>

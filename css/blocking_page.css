@@ -1,0 +1,25 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    background-color: #FF5700;
+}
+
+.container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+#content {
+    text-align: center;
+}
+
+#sad-message {
+    font-size: 24px;
+}
+
+#time-is-up {
+    font-size: 100px;
+}
