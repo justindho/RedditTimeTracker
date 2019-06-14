@@ -4,11 +4,17 @@ Reddit Time Tracker is a Google Chrome extension that keeps track of how much ti
 
 Note about data usage/storage: If the user has Chrome sync turned on for their Google account, their Reddit usage data will be available in every Chrome browser that they are logged in to. For example, if a user starts using Reddit at their home computer and continues to browse Reddit at work, their Reddit usage statistics at work will continue off of where they left off at the user's home computer. If the user chooses to disable Chrome sync, the extension stores the user's Reddit usage data locally (see the [chrome.storage API](https://developer.chrome.com/apps/storage) for more info). [See how to turn on/off sync in Chrome](https://support.google.com/chrome/answer/185277?hl=en&ref_topic=7439637).
 
+## Current Features
+- Keeps track of your daily, weekly, monthly, yearly, and all-time Reddit usage statistics.
+- Shows you how much more/less you are browsing Reddit relative to the past time period.
+- You can set a daily time limit on your Reddit browsing. Once you've reached your pre-set daily browsing limit, you won't be able to browse Reddit unless you choose to update your settings.
+
 ## Visuals
 ![](/chrome_store_pics/nightmode-on.png?raw=true)
 ![](/chrome_store_pics/nightmode-off.png?raw=true)
 ![](/chrome_store_pics/nightmode-on-ex1.png?raw=true)
 ![](/chrome_store_pics/nightmode-off-ex1.png?raw=true)
+![](/chrome_store_pics/time-is-up.png?raw=true)
 
 ## Installation
 Install the extension at the [Chrome Extension Store](https://chrome.google.com/webstore/detail/reddit-time-tracker-monit/kjihonoaammpoioflmhjghkeibmkmmlh?hl=en)!
@@ -19,7 +25,7 @@ Install the extension at the [Chrome Extension Store](https://chrome.google.com/
 ## Project Status
 Features to add in the future:
 1) History: Show each day's Reddit usage.
-2) Accountability: Set up groups so that other members in the group are notified when the user has exceeded their alloted Reddit time usage.
+2) Accountability: Set up groups so that other members in the group are notified when the user has exceeded their allotted Reddit time usage.
 3) Subreddit rankings: Show user's top 10 subreddits in terms of time spent. 
 4) Comparisons: Compare user's average daily/weekly/monthly/yearly time spent on Reddit vs all other Reddit Time Tracker users.
 5) Data Visualization: Show user his/her Reddit usage in a graphical form.
