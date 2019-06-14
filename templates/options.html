@@ -25,12 +25,12 @@
         <!-- Focus Mode -->
         <section id="section-minutes-allowed">
             <br><br>
-            <h3>Daily Reddit Browsing Minutes Allowed</h3>
+            <h3>Set a Daily Reddit Browsing Time Limit</h3>
             <hr>
             <div class="container">
                 <div class="item">
                     <form action="#">
-                        <span>Duration: <input id="duration" type="number" min="1" placeholder="30" autofocus> minutes</span>
+                        <span>Duration: <input id="duration" type="number" min="1" placeholder="1" autofocus> minutes</span>
                     </form>
                 </div>      
                 <!-- <div class="item">                               
@@ -71,10 +71,19 @@
         </nav> -->
 
         <!-- Save user options -->
-        <form action="" id="form-save">
-            <button id="save-button" class="btn btn-primary" type="submit" disabled>Save Changes</button>
-        </form>
-        <div id="save-status" class="hidden alert alert-info"><strong>Your changes have been saved.</strong></div>
+        <div class='inline-buttons'>
+            <form action="" class="form">
+                <button id="save-button" class="btn btn-primary" type="submit" disabled>Save Changes</button>
+            </form>
+            <form action="" class="form">
+                <button id="remove-button" class="btn btn-danger" type="submit">Remove Time Limit</button>
+            </form>
+        </div>
+        <br>
+        <!-- <div id="save-status" class="alert alert-success status-alerts"></div>
+        <div id="remove-status" class="alert alert-info status-alerts"></div> -->
+        <div id="save-status"></div>
+        <div id="remove-status"></div>
 
         <script src="../js/options.js"></script>
     </body>

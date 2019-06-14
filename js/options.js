@@ -1,55 +1,128 @@
 // Save user options to Chrome storage.
-function save_options(e) {
-    let timeLimit = document.getElementById('duration').value;
+document.getElementById('save-button').addEventListener('click', (e) => {
+    let timeLimit = document.getElementById('duration').value * 60; // convert from min to sec
     let savestatus = document.getElementById('save-status');
     // savestatus.style.animationPlayState = 'paused';
 
-    chrome.storage.sync.set({'timeLimit': timeLimit});
-    console.log('animation play state (before): ' + savestatus.style.animationPlayState);
+    chrome.storage.sync.set({'timeLimit': timeLimit}, () => {
+        // Add Bootstrap class.
+        savestatus.className = 'alert alert-success status-alerts';
+        savestatus.innerHTML = 'Success! Your changes have been saved.';
+        console.log('New timeLimit = ' + timeLimit + ' seconds');
+    });
 
-    // Fade save status in and out.   
-    // savestatus.classList.add('animate1');
-    // setTimeout( () => {
-    //     savestatus.classList.remove('animate1');
-    // }, 5000);
-    // if (savestatus.className = 'animate1') savestatus.className = 'animate2';
-    // else savestatus.className = 'animate1';
-    if (savestatus.style.animationPlayState === 'paused') savestatus.style.animationPlayState = 'running';
-    else savestatus.style.animationPlayState = 'paused';    
-    console.log('animation play state (after): ' + savestatus.style.animationPlayState);
+    // Flash status alert.
+    // savestatus.innerHTML = 'Success! Your changes have been saved.';
+    setTimeout( () => {
+        savestatus.innerHTML = '';
+        savestatus.className = '';
+    }, 5000);
+
+    // ****************************************************************
+    // CSS ANIMATION STUFF
+    // console.log('animation play state (before): ' + savestatus.style.animationPlayState);
+
+    // Fade save status out.
+    // if (savestatus.style.animationPlayState === 'paused') savestatus.style.animationPlayState = 'running';
+    // else savestatus.style.animationPlayState = 'paused';
+    // console.log('animation play state (after): ' + savestatus.style.animationPlayState);
+    // ****************************************************************
 
     e.preventDefault();
-}
+});
 
 // Disable save button if duration field is empty.
 function toggle_save() {
     if (document.getElementById('duration').value === '') {
         document.getElementById('save-button').disabled = true;
     }
-    else { 
+    else {
         document.getElementById('save-button').disabled = false;
-    }    
+    }
 }
 
-// Listen for user save action.
-document.getElementById('save-button').addEventListener('click', save_options, false);
-// document.getElementById('form-save').addEventListener('submit', save_options);
+// Remove user's browsing time limit.
+document.getElementById('remove-button').addEventListener('click', (e) => {
+    let removestatus = document.getElementById('remove-status');    
+    chrome.storage.sync.set({'timeLimit': null}, () => {
+        removestatus.className = 'alert alert-info status-alerts';
+        removestatus.innerHTML = 'Removed browsing time limit.';
+        console.log('Removed browsing time limit.');        
+    });    
+    // savestatus.style.animationPlayState = 'paused';
+
+    // chrome.storage.sync.set({'timeLimit': null}, () => {
+    //     document.getElementById('remove-status').innerHTML = 'Removed browsing time limit.';
+    //     console.log('New timeLimit = ' + timeLimit + ' seconds');
+    // });
+
+    // Flash status alert.
+    // removestatus.innerHTML = 'Removed browsing time limit.';
+    setTimeout( () => {
+        removestatus.innerHTML = '';
+        removestatus.className = '';
+    }, 5000);
+
+    // ****************************************************************
+    // CSS ANIMATION STUFF
+    // console.log('animation play state (before): ' + savestatus.style.animationPlayState);
+
+    // Fade save status out.
+    // if (savestatus.style.animationPlayState === 'paused') savestatus.style.animationPlayState = 'running';
+    // else savestatus.style.animationPlayState = 'paused';
+    // console.log('animation play state (after): ' + savestatus.style.animationPlayState);
+    // ****************************************************************
+
+    e.preventDefault();
+});
+
+// document.getElementById('remove-button').addEventListener('click', (e) => {
+//     chrome.storage.sync.get('timeLimit', (result) => {
+//         if (result.timeLimit) {
+//             chrome.storage.sync.set({'timeLimit': null}, () => {
+//                 console.log('Removed browsing time limit.');
+//             });
+//         }
+//         // document.getElementById('remove-status').innerHTML = '<strong>Reddit browsing time limit cleared.</strong>';
+
+//         // Flash status alert.
+//         let removestatus = document.getElementById('remove-status');
+//         removestatus.innerHTML = 'Time limit removed.';
+//         setTimeout( () => {
+//             removestatus.innerHTML = '';
+//         }, 5000);
+
+//         // ****************************************************************
+//         // CSS ANIMATION STUFF
+//         // Fade save status out.
+//         // let removestatus = document.getElementById('remove-status');
+//         // if (removestatus.style.animationPlayState === 'paused') removestatus.style.animationPlayState = 'running';
+//         // else removestatus.style.animationPlayState = 'paused';
+//         // ****************************************************************
+
+//         e.preventDefault();
+//     });
+// });
 
 // Allow user to save options on hitting 'enter' in input field.
 document.getElementById('duration').addEventListener('keyup', (e) => {
     // Number 13 is the 'Enter' key on the keyboard
-    // if (e.keyCode === 13) document.getElementById('save-button').click();    
-    if (e.keyCode === 13) alert('Time is up.');
+    // if (e.keyCode === 13) document.getElementById('save-button').click();
+    if (e.keyCode === 13) {
+        document.getElementById('save-status').innerHTML = '<strong>Your changes have been saved.</strong>'
+    }
 });
 
-
+// Setup on DOM load.
 document.addEventListener('DOMContentLoaded', () => {
     // To work around Chrome's Content Security Policiy, which forbids inline JS.
     document.getElementById('duration').addEventListener('input', toggle_save);
 
-    // Prevent save status from animating on DOM load.
-    let savestatus = document.getElementById('save-status');
-    savestatus.style.animationPlayState = 'paused';
+    // Prevent statuses from animating on DOM load.
+    // let savestatus = document.getElementById('save-status');
+    // savestatus.style.animationPlayState = 'paused';
+    // let removestatus = document.getElementById('remove-status');
+    // removestatus.style.animationPlayState = 'paused';
 });
 
 function play() {
@@ -59,5 +132,5 @@ function play() {
         window.requestAnimationFrame( time => {
             savestatus.className = 'animate';
         })
-    }) 
+    })
 }
