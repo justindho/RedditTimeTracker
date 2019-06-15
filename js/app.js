@@ -220,12 +220,12 @@ function addDiffTrend(currTime, prevTime, id) {
         // console.log('typeof prevTime = ' + typeof prevTime);
         let percentChange = Math.round((currTime - prevTime) / prevTime * 100);
         if (percentChange >= 0) {
-            span.classList.add('trendRed');
+            span.className = 'trendRed';
             let imgURL = chrome.runtime.getURL('img/redArrow.svg');
             span.innerHTML = '+' + percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Red Arrow">';
         }
         else {
-            span.classList.add('trendGreen');
+            span.className = 'trendGreen';
             let imgURL = chrome.runtime.getURL('img/greenArrow.svg');
             span.innerHTML = percentChange + '% &nbsp;&nbsp; <img src="' + imgURL + '" alt="Green Arrow">';
         }
@@ -323,10 +323,4 @@ function displayTime(seconds) {
     else {
         return " 0 min";
     }
-}
-
-// Block Reddit
-function blockReddit() {
-    alert('Time is up!');
-    // document.getElementsByTagName('body').innerHTML = '<div>Daily browsing limit has been reached.</div><button class="btn btn-danger">Override</button>'
 }

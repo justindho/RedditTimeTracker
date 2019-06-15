@@ -1,7 +1,7 @@
 // Display current time limit in UI.
 chrome.storage.sync.get('timeLimit', (result) => {
     if (result.timeLimit === null) document.getElementById('current-limit').innerHTML = 'no limit set';
-    else document.getElementById('current-limit').innerHTML = reuslt.timeLimit;
+    else document.getElementById('current-limit').innerHTML = displayTime(result.timeLimit);
 });
 
 // Save user options to Chrome storage.
@@ -16,7 +16,7 @@ document.getElementById('save-button').addEventListener('click', (e) => {
         console.log('New timeLimit = ' + timeLimit + ' seconds');
 
         // Update current time limit in UI.
-        document.getElementById('current-limit').innerHTML = Math.floor(timeLimit / 60);
+        document.getElementById('current-limit').innerHTML = displayTime(timeLimit);
     });
 
     // Flash status alert.    
@@ -121,4 +121,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // removestatus.style.animationPlayState = 'paused';
 });
 
-// Show current time limit.
+/**
+ * Convert time (in seconds) to minutes if over 60 seconds,
+ *                              hours if over 60 minutes,
+ *                              days if over 24 hours,
+ *                              years if over 365 days.
+ *
+ * @param {number} seconds
+ */
+function displayTime(seconds) {
+    let secInMin = 60;
+    let secInHr = 3600;
+    let secInDay = 86400;
+    let secInWeek = 604800;
+    let secInMonth = 2678400;
+    let secInYr = 31536000;
+    if (seconds / secInYr >= 1) {
+        let years = Math.floor(seconds / secInYr);
+        let months = Math.floor((seconds % secInYr) / secInMonth);
+        let weeks = Math.floor(((seconds % secInYr) % secInMonth) / secInWeek);
+        let days = Math.floor((((seconds % secInYr) % secInMonth) % secInWeek) / secInDay);
+        let hrs = Math.floor(((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) / secInHr);
+        let mins = Math.floor((((((seconds % secInYr) % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
+        return years + " y " + months + " m " + weeks + " w " + days + " d " + hrs + " h " + mins + " min";
+    }
+    else if (seconds / secInMonth >= 1) {
+        let months = Math.floor(seconds / secInMonth);
+        let weeks = Math.floor((seconds % secInMonth) / secInWeek);
+        let days = Math.floor(((seconds % secInMonth) % secInWeek) / secInDay);
+        let hrs = Math.floor((((seconds % secInMonth) % secInWeek) % secInDay) / secInHr);
+        let mins = Math.floor(((((seconds % secInMonth) % secInWeek) % secInDay) % secInHr) / secInMin);
+        return months + " m " + weeks + " w " + days + " d " + hrs + " h " + mins + " min";
+    }
+    else if (seconds / secInWeek >= 1) {
+        let weeks = Math.floor(seconds / secInWeek)
+        let days = Math.floor((seconds % secInWeek) / secInDay);
+        let hrs = Math.floor(((seconds % secInWeek) % secInDay) / secInHr);
+        let mins = Math.floor((((seconds % secInWeek) % secInDay) % secInHr) / secInMin);
+        return weeks + " w " + days + " d " + hrs + " h " + mins + " min";
+    }
+    else if (seconds / secInDay >= 1) {
+        let days = Math.floor(seconds / secInDay);
+        let hrs = Math.floor((seconds % secInDay) / secInHr);
+        let mins = Math.floor(((seconds % secInDay) % secInHr) / secInMin);
+        return days + " d " + hrs + " h " + mins + " min";
+    }
+    else if (seconds / secInHr >= 1) {
+        let hrs = Math.floor(seconds / secInHr);
+        let mins = Math.floor((seconds % secInHr) / secInMin);
+        return hrs + " h " + mins + " min";
+    }
+    else if (seconds / secInMin >= 1) {
+        return Math.floor(seconds / secInMin) + " min";
+    }
+    else {
+        return " 0 min";
+    }
+}
