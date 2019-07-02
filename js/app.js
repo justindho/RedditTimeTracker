@@ -153,21 +153,6 @@ function updateTimes() {
                     chrome.runtime.sendMessage({redirect: newURL}, () => {
                         console.log('Rerouting to blocking page ...');
                     });
-
-                    /**
-                     * Send message to background script to reroute Reddit to blocking page.
-                     */
-                    // Create a port to talk to background script.
-                    // let port = chrome.runtime.connect({name: 'rerouteToBlockingPage'});
-                    // console.log('Port created to talk to background');
-
-                    // // Request background script to reroute requests for Reddit to blocking page.
-                    // port.sendMessage({msg: 'Reroute to blocking page.'});
-                    // // port.postMessage({msg: 'Reroute to blocking page.'});
-                    // console.log('Message sent from app to background');
-
-
-                    // throw "Browsing limit has been met for the day.";
                 }
 
                 // Update current time period's time variables.
@@ -210,7 +195,7 @@ function clearTimer() {
  * Insert trend indicator (red for increase in time, green for decrease).
  *
  * @param {number} currTime the current time value for the current time period
- * @param {number} prevTime the previous time value for hte previous time period
+ * @param {number} prevTime the previous time value for the previous time period
  * @param {String} id the id to give to the newly created span element
  */
 function addDiffTrend(currTime, prevTime, id) {
